@@ -7,9 +7,12 @@ import machine
 import socket
 import time
 
-# ===== WiFi 配置(改成你自己的即可) =====
-SSID = None
-PASSWORD = None
+# ===== WiFi 配置 =====
+# 密码已抽到 wifi_config.py（不入库）；首次使用：复制 wifi_config.example.py 为 wifi_config.py 并填入 WiFi
+try:
+    from wifi_config import SSID, PASSWORD
+except ImportError:
+    SSID = PASSWORD = None  # 缺配置：跳过连路由器，直接开热点兜底
 
 LED = machine.Pin(2, machine.Pin.OUT)  # 板载 LED 在 GPIO2
 LED.value(0)
@@ -37,7 +40,7 @@ def connect_wifi():
     """连接家里路由器的 WiFi; 失败则开启自带热点兜底"""
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    if not wlan.isconnected():
+    if SSID and not wlan.isconnected():
         print("正在连接 WiFi:", SSID)
         wlan.connect(SSID, PASSWORD)
         for _ in range(150):  # 最多等 15 秒

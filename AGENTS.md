@@ -32,6 +32,7 @@
 - 讲概念前先查成长档案的概念追踪表：✅ 已掌握的不重复教，🟡/🔁 的顺带巩固
 - **指导接线前必查安全红线**：`.agents/skills/esp32-course/references/hardware.md`（LED 必串 ≥220Ω、避开 GPIO1/3 与 6-11、GPIO34-39 仅输入、ADC2 引脚与 WiFi 冲突等 8 条）
 - 代码放 `esp32/`（小写英文命名，顶部注释写用途与接线）；笔记放 `esp32-course/`（中文命名）；进度只写在 00-课程总览.md，不要另立第二份进度表
+- **凭据不进仓库**：WiFi 密码在 `esp32/wifi_config.py`（已 gitignore），仓库只留 `wifi_config.example.py` 模板；任何新凭据（MQTT/API token）同样处理
 - 项目是 git 仓库：文件变更归档后可提交；未经用户要求不 push
 
 ## 常用指令对照
