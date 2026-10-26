@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 3 课：ADC 与 PWM 进阶 —— 模拟量与执行器</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    color: #2c3e50; background: #fafbfc; line-height: 1.75;
+    margin: 0; display: flex; min-height: 100vh; font-size: 16px;
+  }
+  /* ===== 左侧导航栏 ===== */
+  .sidebar {
+    width: 252px; flex-shrink: 0; position: sticky; top: 0;
+    height: 100vh; overflow-y: auto;
+    background: #ffffff; border-right: 1px solid #e6eaf0;
+    padding: 22px 14px 18px;
+  }
+  .side-title {
+    font-size: 17px; font-weight: 700; color: #1a2b4a;
+    padding: 0 10px 14px; border-bottom: 1px solid #eef1f6; margin-bottom: 12px;
+  }
+  .sidebar nav a {
+    display: block; padding: 9px 12px; margin-bottom: 3px;
+    border-radius: 8px; color: #45506b; text-decoration: none; font-size: 14.5px;
+  }
+  .sidebar nav a:hover { background: #f0f5ff; color: #3a5bd9; }
+  .sidebar nav a.active { background: #5a7dee; color: #fff; font-weight: 600; }
+  .side-foot {
+    margin-top: 18px; padding: 10px 12px 0; border-top: 1px solid #eef1f6;
+    font-size: 12px; color: #9aa3b2;
+  }
+  /* ===== 主内容区 ===== */
+  main { flex: 1; min-width: 0; }
+  .content { max-width: 880px; margin: 0 auto; padding: 30px 30px 60px; }
+  h1 {
+    font-size: 30px; color: #1a2b4a; margin: 10px 0 18px;
+    padding-bottom: 12px; border-bottom: 3px solid #5a7dee;
+  }
+  h2 {
+    font-size: 22px; color: #1a2b4a; margin-top: 38px;
+    padding-left: 10px; border-left: 4px solid #5a7dee;
+  }
+  h3 { font-size: 18px; color: #2c3e50; margin-top: 26px; }
+  code {
+    font-family: Consolas, "Courier New", monospace;
+    background: #eef1f6; color: #c7254e;
+    padding: 2px 6px; border-radius: 4px; font-size: 0.9em;
+  }
+  pre {
+    background: #282c34; border-radius: 10px; padding: 16px 18px;
+    overflow-x: auto; line-height: 1.5; margin: 14px 0;
+  }
+  pre code {
+    background: none; color: #abb2bf; padding: 0;
+    font-size: 14px; border-radius: 0;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 15px; }
+  th, td { border: 1px solid #dfe4ec; padding: 8px 12px; text-align: left; }
+  th { background: #eef2fa; color: #1a2b4a; }
+  tr:nth-child(even) td { background: #f5f7fb; }
+  blockquote {
+    margin: 14px 0; padding: 10px 16px; background: #f0f5ff;
+    border-left: 4px solid #8aa4f0; color: #45506b; border-radius: 0 8px 8px 0;
+  }
+  details {
+    margin: 14px 0; border: 1px solid #dfe4ec; border-radius: 10px;
+    padding: 12px 16px; background: #fff;
+  }
+  summary { cursor: pointer; font-weight: bold; color: #5a7dee; }
+  details[open] { border-color: #8aa4f0; }
+  hr { border: none; border-top: 1px dashed #cfd6e2; margin: 30px 0; }
+  a { color: #5a7dee; }
+  .footer { margin-top: 44px; font-size: 13px; color: #9aa3b2; text-align: center; }
+  /* ===== 窄屏：侧栏折叠为顶部横条 ===== */
+  @media (max-width: 820px) {
+    body { display: block; }
+    .sidebar {
+      position: static; width: auto; height: auto; padding: 14px 16px 10px;
+      border-right: none; border-bottom: 1px solid #e6eaf0;
+    }
+    .side-title { padding-bottom: 8px; margin-bottom: 8px; }
+    .sidebar nav a { display: inline-block; margin: 0 6px 6px 0; padding: 6px 12px; }
+    .side-foot { display: none; }
+    .content { padding: 20px 16px 50px; }
+  }
+  @media print {
+    .sidebar, .footer { display: none; }
+    body { display: block; background: #fff; }
+  }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="side-title">ESP32 + MicroPython<br>学习课程</div>
+  <nav>
+    <a href="00-课程总览.html">📚 课程总览</a>
+    <a href="01-电子电路基础.html">第 1 课：电子电路基础</a>
+    <a href="02-GPIO输入-按键与中断.html">第 2 课：GPIO 输入 —— 按键与中断</a>
+    <a href="03-ADC与PWM进阶.html" class="active">第 3 课：ADC 与 PWM 进阶 —— 模拟量与执行器</a>
+    <a href="04-通信协议-UART-I2C-SPI.html">第 4 课：通信协议 —— UART / I2C / SPI</a>
+    <a href="05-MQTT与asyncio.html">第 5 课：MQTT 与 asyncio —— 跨上互联网</a>
+    <a href="06-结业项目.html">第 6 课：结业项目 —— 四选一，独立交付</a>
+    <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
+    <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
+  </nav>
+  <div class="side-foot">单文件 · 无依赖 · 可直接分享</div>
+</aside>
+<main><div class="content">
+<h1>第 3 课：ADC 与 PWM 进阶 —— 模拟量与执行器</h1>
+<blockquote>
+<p>目标：掌握 ADC 模拟量采集（摇杆/光敏/温度），学会用 PWM 驱动舵机、蜂鸣器、步进电机，做出"感知→决策→动作"的完整闭环。
+实验硬件：双轴摇杆、光敏模块、LM35 温度、MG90S 舵机、无源蜂鸣器、步进电机+ULN2003 驱动板。
+接线红线：模拟量只能接 <strong>ADC1 引脚（GPIO32~39）</strong>——ADC2 开 WiFi 后读不了（第 1 课红线表）；GPIO34~39 只能输入，接传感器输出脚没问题。</p>
+</blockquote>
+<hr />
+<h2>0. 从"开/关"到"多少"：模拟世界</h2>
+<p>前两课的 GPIO 只有两种状态：0 或 1，亮或灭。
+但真实世界是连续的：光照有明暗、温度有高低、摇杆有角度。</p>
+<p><strong>ADC（模数转换器）</strong>就是把连续电压翻译成数字的桥：</p>
+<pre><code>电压 0V ─────────────── 3.3V
+         ↓ ADC（12位 = 2¹² = 4096 级）
+读数  0 ──────────────── 4095
+</code></pre>
+<p>第 1 课埋的伏笔在这里回收：光敏、LM35、摇杆本质全是<strong>分压器</strong>——物理量变化 → 电阻变化 → 电压变化 → ADC 读数变化。</p>
+<pre><code class="language-python">from machine import ADC, Pin
+
+adc = ADC(Pin(34))            # 光敏 AO 接 GPIO34
+adc.atten(ADC.ATTN_11DB)      # 量程设为约 0~3.3V（11dB 衰减）
+
+raw = adc.read()              # 0 ~ 4095
+volts = raw / 4095 * 3.3      # 换算成电压
+print(&quot;原始值:&quot;, raw, &quot; 电压:&quot;, volts, &quot;V&quot;)
+</code></pre>
+<p><code>atten</code> 是衰减器：引脚电压先被"分压"再测量，量程才够到 3.3V。学习阶段固定用 <code>ATTN_11DB</code> 即可。</p>
+<hr />
+<h2>1. 实验：光敏 + 摇杆，把环境变成数字</h2>
+<h3>接线表（共 3V3 和 GND）</h3>
+<table>
+<thead>
+<tr>
+<th>器件</th>
+<th>模块引脚</th>
+<th>ESP32 引脚</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>光敏（4针）</td>
+<td>AO</td>
+<td>GPIO34</td>
+</tr>
+<tr>
+<td>光敏（4针）</td>
+<td>DO</td>
+<td>不接（本课用不上）</td>
+</tr>
+<tr>
+<td>摇杆</td>
+<td>VRx</td>
+<td>GPIO32</td>
+</tr>
+<tr>
+<td>摇杆</td>
+<td>VRy</td>
+<td>GPIO33</td>
+</tr>
+<tr>
+<td>摇杆</td>
+<td>SW</td>
+<td>GPIO27（数字脚，内部上拉）</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">import machine, time
+
+light = machine.ADC(machine.Pin(34)); light.atten(machine.ADC.ATTN_11DB)
+x = machine.ADC(machine.Pin(32));     x.atten(machine.ADC.ATTN_11DB)
+y = machine.ADC(machine.Pin(33));     y.atten(machine.ADC.ATTN_11DB)
+sw = machine.Pin(27, machine.Pin.IN, machine.Pin.PULL_UP)
+
+while True:
+    print(&quot;光: %4d  X: %4d  Y: %4d  按键: %d&quot;
+          % (light.read(), x.read(), y.read(), sw.value()))
+    time.sleep(0.2)
+</code></pre>
+<p><strong>观察三件事</strong>：
+1. 光敏：用手捂住 / 手机手电照射，读数大幅跳变
+2. 摇杆：居中时约 2048（正好一半！这就是分压器的中间位），推到两边是 0 / 4095
+3. 摇杆按下是 0——又见"低电平有效"（第 2 课内部上拉同款电路）</p>
+<h3>LM35 温度（顺手一起接上）</h3>
+<p>LM35 输出电压 = 温度 × 10mV/°C（25°C 时输出 0.25V）：</p>
+<pre><code class="language-python">t = machine.ADC(machine.Pin(35)); t.atten(machine.ADC.ATTN_11DB)
+
+temp_mv = t.read() / 4095 * 3300      # 换算成毫伏
+print(&quot;温度约:&quot;, temp_mv / 10, &quot;°C&quot;)
+</code></pre>
+<blockquote>
+<p>⚠️ 诚实声明：LM35 手册标称 4V 起供电，我们用 3.3V 属于"超规但能用"，读数偏低、看趋势够用。正经产品要用其他传感器（如 DS18B20 数字温度传感器，第 4 课后你就能自己接）。</p>
+</blockquote>
+<hr />
+<h2>2. 第一个坑：临界值抖动 → 滞回（Hysteresis）</h2>
+<p>做光控灯最直觉的写法：</p>
+<pre><code class="language-python">if light.read() &gt; 2500:      # 暗 → 开灯
+    led.value(1)
+else:
+    led.value(0)             # 亮 → 关灯
+</code></pre>
+<p>跑起来会发现：光照在临界值附近时（比如黄昏），灯<strong>疯狂闪烁</strong>——读数在 2499/2501 之间横跳，和第 2 课按键抖动是同一族问题！</p>
+<p>解法是<strong>滞回</strong>：开灯和关灯用<strong>两个不同的阈值</strong>，中间留一段"缓冲带"：</p>
+<pre><code class="language-python">if light.read() &gt; 2500:      # 很暗才开
+    led.value(1)
+elif light.read() &lt; 1800:    # 相当亮才关
+    led.value(0)
+    # 1800~2500 之间：保持原状态，不动
+</code></pre>
+<p>灯一旦开了，光照要亮到 1800 以下才关；一旦关了，要暗回 2500 以上才开。抖动被缓冲带吸收。
+滞回是工业控制的标配思想：空调温控（26°C 制冷、到 24°C 停）、电饭锅保温，全是它。</p>
+<hr />
+<h2>3. PWM 驱动执行器：从"说"到"干活"</h2>
+<p><code>pwm.py</code> 里你已经用过 <code>duty()</code> 控制亮度。PWM 的真正威力在<strong>驱动执行器</strong>——不同执行器"听"PWM 的方式不同：</p>
+<table>
+<thead>
+<tr>
+<th>执行器</th>
+<th>听什么</th>
+<th>关键参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LED</td>
+<td>占空比 = 亮度</td>
+<td>duty 0~1023</td>
+</tr>
+<tr>
+<td>舵机</td>
+<td>高电平<strong>时长</strong> = 角度</td>
+<td>freq=50，脉宽 0.5~2.5ms</td>
+</tr>
+<tr>
+<td>无源蜂鸣器</td>
+<td><strong>频率</strong> = 音高</td>
+<td>freq=音高，duty=开/关声</td>
+</tr>
+</tbody>
+</table>
+<h3>3.1 舵机 MG90S：PWM 的"时长语言"</h3>
+<p>舵机内有个小电路：把 50Hz 信号里高电平的<strong>持续时间</strong>翻译成角度：</p>
+<pre><code>周期 20ms（freq=50）
+高电平 0.5ms → 0°      高电平 1.5ms → 90°      高电平 2.5ms → 180°
+</code></pre>
+<p>换算成 duty（10 位，1023 ≈ 20ms）：0.5ms ≈ <strong>26</strong>，2.5ms ≈ <strong>128</strong>。</p>
+<p><strong>接线</strong>：舵机棕线→GND，红线→<strong>VIN（5V）</strong>，橙线（信号）→GPIO26。
+（信号 3.3V 足够；电源必须 5V——舵机是要干活的，功率走 VIN，GPIO 只出信号。第 1 课红线又回扣了。）</p>
+<pre><code class="language-python">from machine import Pin, PWM
+import time
+
+servo = PWM(Pin(26), freq=50)
+
+def set_angle(angle):                     # angle: 0~180
+    duty = 26 + int(angle / 180 * 102)    # 0°→26, 180°→128
+    servo.duty(duty)
+
+while True:
+    for a in range(0, 181, 10):           # 0° 扫到 180°
+        set_angle(a); time.sleep_ms(100)
+    for a in range(180, -1, -10):         # 再扫回来
+        set_angle(a); time.sleep_ms(100)
+</code></pre>
+<h3>3.2 无源蜂鸣器：PWM 的"频率语言"</h3>
+<p>无源蜂鸣器像个小喇叭——你给什么频率它发什么音。<strong>频率=音高，duty=音量开关</strong>：</p>
+<pre><code class="language-python">buzzer = PWM(Pin(25), freq=523, duty=0)   # duty=0 静音
+
+def tone(freq, ms):
+    buzzer.freq(freq)
+    buzzer.duty(512)                      # 50% 占空比发声
+    time.sleep_ms(ms)
+    buzzer.duty(0)                        # 静音
+
+# 音符频率表（低八度小星星）
+C4,D4,E4,F4,G4,A4,B4,C5 = 262,294,330,349,392,440,494,523
+
+melody = [C4,C4,G4,G4,A4,A4,G4, F4,F4,E4,E4,D4,D4,C4]
+beat   = [1,1,1,1,1,1,2,    1,1,1,1,1,1,2]
+
+for n, b in zip(melody, beat):
+    tone(n, 400 * b)
+    time.sleep_ms(50)                     # 音符间留缝，更清晰
+</code></pre>
+<p>（有源蜂鸣器则相反：通电就响固定音，duty 数字脚当开关用，做报警器更省事。）</p>
+<h3>3.3 步进电机 28BYJ-48：不听 PWM，听"节拍"</h3>
+<p>步进电机靠 4 组线圈按顺序通电，一步一步精确走。ULN2003 驱动板接 GPIO16/17/18/19，红线→<strong>VIN(5V)</strong>：</p>
+<pre><code class="language-python">from machine import Pin
+import time
+
+IN1, IN2, IN3, IN4 = Pin(16, Pin.OUT), Pin(17, Pin.OUT), Pin(18, Pin.OUT), Pin(19, Pin.OUT)
+COILS = (IN1, IN2, IN3, IN4)
+
+# 半步序列：相邻两相交替通电，转得更顺
+SEQ = [(1,0,0,0),(1,1,0,0),(0,1,0,0),(0,1,1,0),
+       (0,0,1,0),(0,0,1,1),(0,0,0,1),(1,0,0,1)]
+
+def step(n, delay_ms=2):
+    for _ in range(n):
+        for s in SEQ:
+            for i in range(4):
+                COILS[i].value(s[i])
+            time.sleep_ms(delay_ms)
+
+# 28BYJ-48 减速比 1:64，半步模式一圈约 4096 步（实测约 4076，精确场合要校准）
+step(2048)         # 半圈
+step(-0)           # 反转让序列倒着放即可：for s in reversed(SEQ)
+</code></pre>
+<p>步进电机的价值：<strong>角度可精确控制、可原地保持</strong>——打印机、云台、打印机头全是它。代价是慢、费电。</p>
+<blockquote>
+<p>⚠️ 功率提醒：舵机和步进电机都从 VIN 吃 5V。USB 供电下轻载没问题；两个同时满负荷可能电压骤降触发 Brownout（老朋友了）。到时给 VIN 外接独立 5V 电源，<strong>共地</strong>即可。</p>
+</blockquote>
+<hr />
+<h2>4. 小项目：摇杆控制的"扫描雷达云台"</h2>
+<p>组合本课全部技能：摇杆 X 轴 → 舵机角度，摇杆按下 → 播一声提示音，光敏太暗 → 蜂鸣器报警。</p>
+<pre><code class="language-python">from machine import Pin, PWM, ADC
+import time
+
+servo  = PWM(Pin(26), freq=50)
+buzzer = PWM(Pin(25), freq=880, duty=0)
+x      = ADC(Pin(32)); x.atten(ADC.ATTN_11DB)
+light  = ADC(Pin(34)); light.atten(ADC.ATTN_11DB)
+sw     = Pin(27, Pin.IN, Pin.PULL_UP)
+
+while True:
+    angle = (x.read() / 4095) * 180           # 摇杆值 → 0~180°
+    servo.duty(26 + int(angle / 180 * 102))
+
+    if light.read() &gt; 3000:                   # 太暗：短促报警
+        buzzer.duty(512); time.sleep_ms(80); buzzer.duty(0)
+
+    if sw.value() == 0:                       # 按下摇杆：确认音
+        buzzer.freq(1318); buzzer.duty(512)
+        time.sleep_ms(150); buzzer.duty(0); buzzer.freq(880)
+
+    time.sleep_ms(50)
+</code></pre>
+<p><strong>验收</strong>：推动摇杆舵机平滑跟随；按下摇杆"叮"一声；捂住光敏听到连续短鸣。</p>
+<hr />
+<h2>课后题</h2>
+<ol>
+<li>摇杆居中时读数约 2048，为什么正好是 4095 的一半左右？这背后是什么电路结构？</li>
+<li>光控灯用单阈值 2500 会闪烁，改成"开 &gt;2500 / 关 &lt;1800"就不闪了。请用"滞回"一词向一个非工程师解释为什么不闪了。</li>
+<li>舵机信号脉宽 1.5ms 对应 90°。若程序里 <code>freq</code> 误设成 100（周期 10ms），同样发 1.5ms 脉宽，舵机行为会怎样？</li>
+</ol>
+<h2>参考答案（先自己做完再看！）</h2>
+<details>
+<summary>点开查看答案</summary>
+<ol>
+<li>摇杆内部是<strong>两个电位器</strong>（分压器）：动触点在电阻中间位置时，上下两段电阻相等，分压比 1:1，输出电压 = 3.3V × 1/2，ADC 读数 ≈ 4095/2。这验证了第 1 课的分压器公式：Vout = Vin × R2/(R1+R2)。</li>
+<li>想象走廊声控灯，人来就亮、人走就灭，有人在门口探头探脑就会一闪一闪。滞回相当于规定"进来才算开灯（很暗），走到灯正下方才关（很亮）"，门口徘徊的"半明半暗"不再影响状态——开关动作之间留了缓冲带，临界抖动够不着。</li>
+<li>舵机内部按"高电平时长"解码，1.5ms 仍是 90° 的指令，但周期变成 10ms 意味着信号频率翻倍（100Hz）。多数舵机期望 50Hz，频率不对时解码电路可能误判或抖动，常见现象是舵机嗡嗡发热、角度漂移。结论：<strong>脉宽决定角度，频率必须是约定值</strong>——这就是协议。</li>
+</ol>
+</details>
+<hr />
+<p><em>课程归档于 ZCode 学习实践 · 2026-10-26</em></p>
+<div class="footer">— ESP32 + MicroPython 学习课程 · 由 ZCode 陪伴生成 —</div>
+</div></main>
+</body>
+</html>
