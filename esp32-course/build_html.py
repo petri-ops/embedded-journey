@@ -37,10 +37,6 @@ TEMPLATE = """<!DOCTYPE html>
     background: #ffffff; border-right: 1px solid #e6eaf0;
     padding: 22px 14px 18px;
   }
-  .side-title {
-    font-size: 17px; font-weight: 700; color: #1a2b4a;
-    padding: 0 10px 14px; border-bottom: 1px solid #eef1f6; margin-bottom: 12px;
-  }
   .side-bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
   .nav-toggle {
     display: inline-block; flex-shrink: 0;
@@ -132,7 +128,6 @@ TEMPLATE = """<!DOCTYPE html>
       box-shadow: 0 1px 6px rgba(26,43,74,.06);
     }
     .side-bar { align-items: center; }
-    .side-title { font-size: 15px; padding: 0; border-bottom: none; margin: 0; }
     .nav-toggle { display: inline-block; }
     .sidebar nav {
       display: none; position: absolute; left: 0; right: 0; top: 100%;
@@ -156,7 +151,6 @@ TEMPLATE = """<!DOCTYPE html>
 <button class="nav-float" id="navFloat" type="button" aria-label="显示目录">☰ 目录</button>
 <aside class="sidebar">
   <div class="side-bar">
-    <div class="side-title">ESP32 + MicroPython 学习课程</div>
     <button class="nav-toggle" id="navToggle" type="button" aria-label="展开或收起目录">☰ 目录</button>
   </div>
   <nav id="courseNav">
