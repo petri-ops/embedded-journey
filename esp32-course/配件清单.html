@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>套件配件清单（进阶版套餐 · 共 36 项）</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    color: #2c3e50; background: #fafbfc; line-height: 1.75;
+    margin: 0; display: flex; min-height: 100vh; font-size: 16px;
+  }
+  /* ===== 左侧导航栏 ===== */
+  .sidebar {
+    width: 252px; flex-shrink: 0; position: sticky; top: 0;
+    height: 100vh; overflow-y: auto;
+    background: #ffffff; border-right: 1px solid #e6eaf0;
+    padding: 22px 14px 18px;
+  }
+  .side-title {
+    font-size: 17px; font-weight: 700; color: #1a2b4a;
+    padding: 0 10px 14px; border-bottom: 1px solid #eef1f6; margin-bottom: 12px;
+  }
+  .sidebar nav a {
+    display: block; padding: 9px 12px; margin-bottom: 3px;
+    border-radius: 8px; color: #45506b; text-decoration: none; font-size: 14.5px;
+  }
+  .sidebar nav a:hover { background: #f0f5ff; color: #3a5bd9; }
+  .sidebar nav a.active { background: #5a7dee; color: #fff; font-weight: 600; }
+  .side-foot {
+    margin-top: 18px; padding: 10px 12px 0; border-top: 1px solid #eef1f6;
+    font-size: 12px; color: #9aa3b2;
+  }
+  /* ===== 主内容区 ===== */
+  main { flex: 1; min-width: 0; }
+  .content { max-width: 880px; margin: 0 auto; padding: 30px 30px 60px; }
+  h1 {
+    font-size: 30px; color: #1a2b4a; margin: 10px 0 18px;
+    padding-bottom: 12px; border-bottom: 3px solid #5a7dee;
+  }
+  h2 {
+    font-size: 22px; color: #1a2b4a; margin-top: 38px;
+    padding-left: 10px; border-left: 4px solid #5a7dee;
+  }
+  h3 { font-size: 18px; color: #2c3e50; margin-top: 26px; }
+  code {
+    font-family: Consolas, "Courier New", monospace;
+    background: #eef1f6; color: #c7254e;
+    padding: 2px 6px; border-radius: 4px; font-size: 0.9em;
+  }
+  pre {
+    background: #282c34; border-radius: 10px; padding: 16px 18px;
+    overflow-x: auto; line-height: 1.5; margin: 14px 0;
+  }
+  pre code {
+    background: none; color: #abb2bf; padding: 0;
+    font-size: 14px; border-radius: 0;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 15px; }
+  th, td { border: 1px solid #dfe4ec; padding: 8px 12px; text-align: left; }
+  th { background: #eef2fa; color: #1a2b4a; }
+  tr:nth-child(even) td { background: #f5f7fb; }
+  blockquote {
+    margin: 14px 0; padding: 10px 16px; background: #f0f5ff;
+    border-left: 4px solid #8aa4f0; color: #45506b; border-radius: 0 8px 8px 0;
+  }
+  details {
+    margin: 14px 0; border: 1px solid #dfe4ec; border-radius: 10px;
+    padding: 12px 16px; background: #fff;
+  }
+  summary { cursor: pointer; font-weight: bold; color: #5a7dee; }
+  details[open] { border-color: #8aa4f0; }
+  hr { border: none; border-top: 1px dashed #cfd6e2; margin: 30px 0; }
+  a { color: #5a7dee; }
+  .footer { margin-top: 44px; font-size: 13px; color: #9aa3b2; text-align: center; }
+  /* ===== 窄屏：侧栏折叠为顶部横条 ===== */
+  @media (max-width: 820px) {
+    body { display: block; }
+    .sidebar {
+      position: static; width: auto; height: auto; padding: 14px 16px 10px;
+      border-right: none; border-bottom: 1px solid #e6eaf0;
+    }
+    .side-title { padding-bottom: 8px; margin-bottom: 8px; }
+    .sidebar nav a { display: inline-block; margin: 0 6px 6px 0; padding: 6px 12px; }
+    .side-foot { display: none; }
+    .content { padding: 20px 16px 50px; }
+  }
+  @media print {
+    .sidebar, .footer { display: none; }
+    body { display: block; background: #fff; }
+  }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="side-title">ESP32 + MicroPython<br>学习课程</div>
+  <nav>
+    <a href="00-课程总览.html">📚 课程总览</a>
+    <a href="01-电子电路基础.html">第 1 课：电子电路基础</a>
+    <a href="02-GPIO输入-按键与中断.html">第 2 课：GPIO 输入 —— 按键与中断</a>
+    <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
+    <a href="配件清单.html" class="active">套件配件清单（进阶版套餐 · 共 36 项）</a>
+  </nav>
+  <div class="side-foot">单文件 · 无依赖 · 可直接分享</div>
+</aside>
+<main><div class="content">
+<h1>套件配件清单（进阶版套餐 · 共 36 项）</h1>
+<blockquote>
+<p>来源：2026-10-22 购买截图，已核对归档
+主控：ESP32-32 开发板（ESP32-D0WD-V3 / 4MB Flash / CP2102 / 串口 COM7）</p>
+</blockquote>
+<h2>主控与耗材</h2>
+<table>
+<thead>
+<tr>
+<th>数量</th>
+<th>名称</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>ESP32-32 开发板</td>
+<td>主控</td>
+</tr>
+<tr>
+<td>1</td>
+<td>ESP32 扩展板 30P（黑）</td>
+<td>引出全部引脚，插面包板更方便</td>
+</tr>
+<tr>
+<td>1</td>
+<td>830 孔面包板（带背胶可拼接）</td>
+<td>免焊接搭电路</td>
+</tr>
+<tr>
+<td>40+40+40</td>
+<td>杜邦线 20cm（母母 / 公公 / 公母）</td>
+<td>连线</td>
+</tr>
+<tr>
+<td>600</td>
+<td>电阻包 1/4W 30 种 1%</td>
+<td>限流、分压（数码管必串 220Ω+）</td>
+</tr>
+<tr>
+<td>200</td>
+<td>LED（F3+F5 发光二极管盒）</td>
+<td>实验灯</td>
+</tr>
+<tr>
+<td>1</td>
+<td>收纳盒</td>
+<td>装以上所有东西</td>
+</tr>
+</tbody>
+</table>
+<h2>显示类（5 种显示器件）</h2>
+<table>
+<thead>
+<tr>
+<th>数量</th>
+<th>名称</th>
+<th>接口</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0.96 寸 OLED 4 脚（已焊针）</td>
+<td>I2C (SSD1306)</td>
+<td>小型数据显示，最常用</td>
+</tr>
+<tr>
+<td>1</td>
+<td>LCD1602 字符液晶</td>
+<td>并口/待确认是否带 I2C 转接板</td>
+<td>两行字符显示</td>
+</tr>
+<tr>
+<td>1</td>
+<td>240×240 显示屏</td>
+<td>SPI (ST7789)</td>
+<td>彩色图形显示</td>
+</tr>
+<tr>
+<td>1</td>
+<td>数码管 0.56" 共阴 4 位</td>
+<td>GPIO 扫描</td>
+<td>多位数字显示</td>
+</tr>
+<tr>
+<td>1</td>
+<td>数码管 0.56" 共阴 1 位</td>
+<td>GPIO</td>
+<td>单数字显示</td>
+</tr>
+<tr>
+<td>1</td>
+<td>800×800 LED 模块（灯板）</td>
+<td>型号以实物为准</td>
+<td>灯板显示</td>
+</tr>
+</tbody>
+</table>
+<h2>输入与传感器（13 种）</h2>
+<table>
+<thead>
+<tr>
+<th>数量</th>
+<th>名称</th>
+<th>类型</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>矩阵键盘（16 键）</td>
+<td>扫描</td>
+<td>密码锁、菜单输入</td>
+</tr>
+<tr>
+<td>1</td>
+<td>双轴按键摇杆模块</td>
+<td>2×ADC + 数字键</td>
+<td>方向控制（ADC 实战首选）</td>
+</tr>
+<tr>
+<td>1</td>
+<td>光敏电阻模块（4 针 AO+DO）</td>
+<td>模拟+数字</td>
+<td>测光照，自动灯</td>
+</tr>
+<tr>
+<td>1</td>
+<td>LM35 温度传感器模块</td>
+<td>模拟</td>
+<td>测温度（标称 4V 起供，3.3V 下读数看趋势）</td>
+</tr>
+<tr>
+<td>1</td>
+<td>声音传感器模块（红板）</td>
+<td>模拟+数字</td>
+<td>拍手开关灯、声控</td>
+</tr>
+<tr>
+<td>1</td>
+<td>HC-SR04 超声波（宽电压 3-5.5V）</td>
+<td>数字 Trig/Echo</td>
+<td>测距，3.3V 可直连无需分压</td>
+</tr>
+<tr>
+<td>1</td>
+<td>HC-SR501 人体红外（PIR）</td>
+<td>数字</td>
+<td>检测人走动</td>
+</tr>
+<tr>
+<td>1</td>
+<td>SW-420 震动传感器</td>
+<td>数字</td>
+<td>震动报警</td>
+</tr>
+<tr>
+<td>1</td>
+<td>SW-520D 倾斜传感器</td>
+<td>数字</td>
+<td>倾倒检测</td>
+</tr>
+<tr>
+<td>1</td>
+<td>干簧管传感器</td>
+<td>数字</td>
+<td>磁控门磁，门窗开合检测</td>
+</tr>
+<tr>
+<td>1</td>
+<td>3144 霍尔传感器模块</td>
+<td>数字</td>
+<td>磁场/磁铁检测</td>
+</tr>
+<tr>
+<td>1</td>
+<td>21 键红外遥控器 + 红外接收模块</td>
+<td>NEC 红外</td>
+<td>远程遥控</td>
+</tr>
+</tbody>
+</table>
+<h2>执行器与输出（6 种）</h2>
+<table>
+<thead>
+<tr>
+<th>数量</th>
+<th>名称</th>
+<th>类型</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>红色继电器模块</td>
+<td>数字</td>
+<td>控制家电/强电开关（物联网核心）</td>
+</tr>
+<tr>
+<td>1</td>
+<td>MG90S 舵机（金属齿）</td>
+<td>PWM</td>
+<td>转动角度，云台/开关拨杆</td>
+</tr>
+<tr>
+<td>1</td>
+<td>步进电机 5V + 驱动板（ULN2003）</td>
+<td>4 相脉冲</td>
+<td>精确转动步数</td>
+</tr>
+<tr>
+<td>1</td>
+<td>无源蜂鸣器模块</td>
+<td>PWM</td>
+<td>播放音调旋律（可唱歌）</td>
+</tr>
+<tr>
+<td>1</td>
+<td>有源蜂鸣器模块</td>
+<td>数字</td>
+<td>通电即响的报警器</td>
+</tr>
+<tr>
+<td>1</td>
+<td>MAX98357 I2S 数字功放（已焊排针）</td>
+<td>I2S</td>
+<td>播放真实音频（<strong>需自备小喇叭 4-8Ω</strong>）</td>
+</tr>
+</tbody>
+</table>
+<h2>线材与其他</h2>
+<table>
+<thead>
+<tr>
+<th>数量</th>
+<th>名称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>蓝色四芯 30cm 屏蔽线</td>
+</tr>
+</tbody>
+</table>
+<h2>⚠️ 到货后要注意的几件事</h2>
+<ol>
+<li><strong>数码管是"共阴"</strong>：<code>../esp32/seg.py</code> 是按"共阳极"逻辑写的段码表，接新数码管时 0/1 要<strong>全部取反</strong>才亮得对。</li>
+<li><strong>数码管每段必须串 220Ω 以上电阻</strong>（电阻包里有），否则重演 10-22 的 Brownout 无限重启。</li>
+<li><strong>MAX98357 没配喇叭</strong>，清单里没有扬声器，播放声音需另购 4Ω/8Ω 小喇叭。</li>
+<li><strong>LCD1602 到货看背面</strong>：有蓝色小板（I2C 转接板）就只需 4 根线；没有则要占 6+ 个 GPIO 并需电位器调对比度（可用电阻包+光敏组合替代）。</li>
+<li><strong>HC-SR04 是宽电压版（3-5.5V）</strong>，3.3V 直连可用，ECHO 脚不需要分压电阻。</li>
+<li><strong>800×800 LED 模块</strong>具体型号（是否 WS2812 全彩）以实物为准，收到后补记。</li>
+</ol>
+<h2>配件 ↔ 课程对应</h2>
+<table>
+<thead>
+<tr>
+<th>课程</th>
+<th>用到的配件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第 3 课 ADC/PWM</td>
+<td>摇杆、光敏、LM35、声音传感器、舵机、无源蜂鸣器、步进电机</td>
+</tr>
+<tr>
+<td>第 4 课 UART/I2C/SPI</td>
+<td>OLED(I2C)、LCD1602、240×240 屏(SPI)、矩阵键盘</td>
+</tr>
+<tr>
+<td>第 5 课 MQTT/asyncio</td>
+<td>任一传感器 + 继电器 = 完整物联网项目</td>
+</tr>
+<tr>
+<td>结业项目候选</td>
+<td>安防系统（PIR+蜂鸣器+网页）、门磁报警（干簧管）、测距尺（超声波+OLED）、遥控舵机云台（红外+舵机+摇杆）</td>
+</tr>
+</tbody>
+</table>
+<div class="footer">— ESP32 + MicroPython 学习课程 · 由 ZCode 陪伴生成 —</div>
+</div></main>
+</body>
+</html>

@@ -99,6 +99,8 @@
     <a href="00-课程总览.html" class="active">📚 课程总览</a>
     <a href="01-电子电路基础.html">第 1 课：电子电路基础</a>
     <a href="02-GPIO输入-按键与中断.html">第 2 课：GPIO 输入 —— 按键与中断</a>
+    <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
+    <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
   </nav>
   <div class="side-foot">单文件 · 无依赖 · 可直接分享</div>
 </aside>
@@ -106,7 +108,8 @@
 <h1>ESP32 + MicroPython 学习课程</h1>
 <blockquote>
 <p>学习方式：ZCode 讲解 → 实操验证 → 本目录归档笔记
-硬件：ESP32 DevKit（ESP32-D0WD-V3, 4MB Flash, CP2102 串口）
+课程管理：本项目由 <code>.agents/skills/esp32-course</code> 技能驱动（说"上课 / 下一课 / 看进度 / 交作业 / 记录踩坑"即可）
+硬件：ESP32 DevKit（ESP32-D0WD-V3, 4MB Flash, CP2102 串口）｜ 配件：进阶版套件 36 项（见 <a href="配件清单.html">配件清单</a>）
 固件：MicroPython v1.29.0 ｜ 串口 COM7 ｜ 局域网 IP 192.168.0.105（DHCP，可能变化）</p>
 <p>📄 <strong>文档格式说明</strong>：每课同时保存 <code>.md</code>（编辑源码）和 <code>.html</code>（分享版）。
 <code>.html</code> 是单文件、无依赖，双击浏览器打开即可，也可直接发给朋友。
@@ -158,9 +161,11 @@
 <h2>本目录其他文件（代码实践区）</h2>
 <ul>
 <li><code>../esp32/main.py</code> —— 网页控制 LED 的常驻服务（开机自启）</li>
+<li><code>../esp32/wifi_config.py</code> —— WiFi 密码配置（<strong>不入库</strong>；首次使用复制 <code>wifi_config.example.py</code> 并上传到板子）</li>
 <li><code>../esp32/seg.py</code> —— 数码管段码程序（待硬件修复后验证）</li>
 <li><code>../esp32/led.py</code> <code>pwm.py</code> <code>wifi.py</code> —— 练手代码备份</li>
 <li><code>../firmware/ESP32_GENERIC-20260824-v1.29.0.bin</code> —— 固件备份</li>
+<li><code>成长档案.md</code> —— 概念追踪、提问日志、能力雷达、成长路线（skill 每次会话维护）</li>
 </ul>
 <h2>常用命令备忘</h2>
 <pre><code class="language-bash"># 上传文件到板子
@@ -210,6 +215,28 @@ python -m esptool --port COM7 --baud 460800 write-flash 0x1000 D:/1.WorkDir/PLC/
 <td>数码管接上后无限重启</td>
 <td>段脚未限流，3.3V 被拉垮触发 Brownout</td>
 <td>GPIO 驱动 LED 必须串 220Ω+ 电阻</td>
+</tr>
+</tbody>
+</table>
+<h2>学习日志（每次会话结束追加一行）</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>本次内容</th>
+<th>产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10-22 前后</td>
+<td>刷机三坑解决；第 1 课电子电路基础、第 2 课按键与中断完成讲授；网页控灯项目上线</td>
+<td><code>main.py</code>、踩坑记录 ×4</td>
+</tr>
+<tr>
+<td>10-26</td>
+<td>确认套件为进阶版 36 项并归档配件清单；建立课程管理 skill（规范/硬件/进度三合一）</td>
+<td><code>配件清单.md</code>、<code>.agents/skills/esp32-course/</code></td>
 </tr>
 </tbody>
 </table>

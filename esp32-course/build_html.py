@@ -185,6 +185,13 @@ def main():
     print(f"课程目录: {course_dir}")
     for f in files:
         build_file(f, files)
+    # GitHub Pages 首页：用第一个页面（课程总览）作为 index.html
+    first_html = files[0].with_suffix(".html")
+    if first_html.exists():
+        (course_dir / "index.html").write_text(
+            first_html.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        print("生成: index.html（站点首页）")
     print(f"完成，共生成 {len(files)} 个 HTML 文件（单文件、无依赖、可直接分享）")
 
 
