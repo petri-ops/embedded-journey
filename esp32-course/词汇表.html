@@ -22,6 +22,13 @@
     font-size: 17px; font-weight: 700; color: #1a2b4a;
     padding: 0 10px 14px; border-bottom: 1px solid #eef1f6; margin-bottom: 12px;
   }
+  .side-bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .nav-toggle {
+    display: none; flex-shrink: 0;
+    font-size: 13.5px; color: #3a5bd9; background: #f0f5ff;
+    border: 1px solid #cfd9f5; border-radius: 8px;
+    padding: 6px 12px; cursor: pointer;
+  }
   .sidebar nav a {
     display: block; padding: 9px 12px; margin-bottom: 3px;
     border-radius: 8px; color: #45506b; text-decoration: none; font-size: 14.5px;
@@ -85,17 +92,29 @@
   .gloss-pop .t { font-weight: 700; color: #1a2b4a; margin-bottom: 4px; }
   .gloss-pop .more { display: block; margin-top: 8px; font-size: 12.5px; }
   .footer { margin-top: 44px; font-size: 13px; color: #9aa3b2; text-align: center; }
-  /* ===== 窄屏：侧栏折叠为顶部横条 ===== */
+  /* ===== 窄屏：导航折叠为顶栏，点开下拉目录 ===== */
   @media (max-width: 820px) {
     body { display: block; }
     .sidebar {
-      position: static; width: auto; height: auto; padding: 14px 16px 10px;
+      position: sticky; top: 0; z-index: 100;
+      width: auto; height: auto; overflow: visible; padding: 10px 14px;
       border-right: none; border-bottom: 1px solid #e6eaf0;
+      box-shadow: 0 1px 6px rgba(26,43,74,.06);
     }
-    .side-title { padding-bottom: 8px; margin-bottom: 8px; }
-    .sidebar nav a { display: inline-block; margin: 0 6px 6px 0; padding: 6px 12px; }
+    .side-bar { align-items: center; }
+    .side-title { font-size: 15px; padding: 0; border-bottom: none; margin: 0; }
+    .nav-toggle { display: inline-block; }
+    .sidebar nav {
+      display: none; position: absolute; left: 0; right: 0; top: 100%;
+      background: #fff; border-bottom: 1px solid #e6eaf0;
+      padding: 8px 12px; box-shadow: 0 10px 18px rgba(26,43,74,.14);
+    }
+    .sidebar nav.open { display: block; }
+    .sidebar nav a { display: block; margin: 2px 0; padding: 10px 12px; }
     .side-foot { display: none; }
     .content { padding: 20px 16px 50px; }
+    h1 { font-size: 24px; }
+    table { display: block; overflow-x: auto; }
   }
   @media print {
     .sidebar, .footer { display: none; }
@@ -105,8 +124,11 @@
 </head>
 <body>
 <aside class="sidebar">
-  <div class="side-title">ESP32 + MicroPython<br>学习课程</div>
-  <nav>
+  <div class="side-bar">
+    <div class="side-title">ESP32 + MicroPython 学习课程</div>
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="展开或收起目录">☰ 目录</button>
+  </div>
+  <nav id="courseNav">
     <a href="00-课程总览.html">📚 课程总览</a>
     <a href="01-电子电路基础.html">第 1 课：电子电路基础</a>
     <a href="02-GPIO输入-按键与中断.html">第 2 课：GPIO 输入 —— 按键与中断</a>
@@ -246,6 +268,23 @@
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') close();
+  });
+})();
+(function () {
+  var btn = document.getElementById('navToggle');
+  var nav = document.getElementById('courseNav');
+  if (!btn || !nav) return;
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    nav.classList.toggle('open');
+  });
+  document.addEventListener('click', function (e) {
+    if (nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove('open');
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') nav.classList.remove('open');
   });
 })();
 </script>
