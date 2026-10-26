@@ -200,4 +200,4 @@ btn.irq(trigger=machine.Pin.IRQ_FALLING, handler=on_press)
 
 ---
 
-*课程归档于 ZCode 学习实践 · 2026-10-22*
+<em>课程笔记归档 · 2026-10-22*

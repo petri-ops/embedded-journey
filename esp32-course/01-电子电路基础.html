@@ -201,7 +201,7 @@ R = (电源电压 - Vf) / 目标电流
 <pre><code>电路图：GPIO ──[220Ω]──▶|── GND     （▶| 是 LED 符号）
 </code></pre>
 <blockquote>
-<p>💡 为什么板载 LED（GPIO2）直连也没烧？开发板出厂已在回路里焊好了限流电阻。
+<p>提示：为什么板载 LED（GPIO2）直连也没烧？开发板出厂已在回路里焊好了限流电阻。
 板厂替你兜底的只有板上的东西，外接元件必须自己接电阻。</p>
 </blockquote>
 <hr />
@@ -287,7 +287,7 @@ GPIO ────┤
 <tr>
 <th>段</th>
 <th>a</th>
-<th>b⚠️</th>
+<th>b(注1)</th>
 <th>c</th>
 <th>d</th>
 <th>e</th>
@@ -311,8 +311,8 @@ GPIO ────┤
 </tbody>
 </table>
 <ul>
-<li>⚠️ GPIO12 是<strong>启动配置引脚（strapping pin）</strong>：外接电路若在开机时呈高电平，芯片会把 Flash 电压配成 1.8V 导致启动失败。建议 b 段改接 GPIO16，代码里 <code>b = machine.Pin(16, ...)</code> 一行即可。</li>
-<li>电流验算：8 段全亮 × 5.9mA ≈ 47mA，安全 ✅</li>
+<li><strong>注1</strong> GPIO12 是<strong>启动配置引脚（strapping pin）</strong>：外接电路若在开机时呈高电平，芯片会把 Flash 电压配成 1.8V 导致启动失败。建议 b 段改接 GPIO16，代码里 <code>b = machine.Pin(16, ...)</code> 一行即可。</li>
+<li>电流验算：8 段全亮 × 5.9mA ≈ 47mA，安全（47mA &lt; 100mA 上限）</li>
 <li>代码不用改：共阳低电平点亮，现有段码表本来就对。</li>
 </ul>
 <hr />
@@ -333,8 +333,8 @@ GPIO ────┤
 </ol>
 </details>
 <hr />
-<p><em>课程归档于 ZCode 学习实践 · 2026-10-22</em></p>
-<div class="footer">— ESP32 + MicroPython 学习课程 · 由 ZCode 陪伴生成 —</div>
+<p><em>课程笔记归档 · 2026-10-22*</p>
+<div class="footer">— ESP32 + MicroPython 学习课程 —</div>
 </div></main>
 </body>
 </html>

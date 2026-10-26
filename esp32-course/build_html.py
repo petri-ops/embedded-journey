@@ -120,7 +120,7 @@ TEMPLATE = """<!DOCTYPE html>
 </aside>
 <main><div class="content">
 {{CONTENT}}
-<div class="footer">— ESP32 + MicroPython 学习课程 · 由 ZCode 陪伴生成 —</div>
+<div class="footer">— ESP32 + MicroPython 学习课程 —</div>
 </div></main>
 </body>
 </html>
