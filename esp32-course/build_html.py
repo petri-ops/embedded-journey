@@ -11,6 +11,7 @@
 - 自动处理 <details> 折叠答案块
 - 新增课程 .md 文件后重新运行，导航栏自动收录
 """
+import json
 import re
 from pathlib import Path
 
@@ -91,6 +92,17 @@ TEMPLATE = """<!DOCTYPE html>
   details[open] { border-color: #8aa4f0; }
   hr { border: none; border-top: 1px dashed #cfd6e2; margin: 30px 0; }
   a { color: #5a7dee; }
+  /* ===== 术语悬浮解释 ===== */
+  .gloss { border-bottom: 1px dashed #5a7dee; cursor: help; }
+  .gloss:hover { background: #f0f5ff; }
+  .gloss-pop {
+    position: fixed; z-index: 999; max-width: 340px;
+    background: #fff; border: 1px solid #cfd6e2; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(26,43,74,.18); padding: 12px 14px;
+    font-size: 14px; line-height: 1.7; color: #2c3e50;
+  }
+  .gloss-pop .t { font-weight: 700; color: #1a2b4a; margin-bottom: 4px; }
+  .gloss-pop .more { display: block; margin-top: 8px; font-size: 12.5px; }
   .footer { margin-top: 44px; font-size: 13px; color: #9aa3b2; text-align: center; }
   /* ===== 窄屏：侧栏折叠为顶部横条 ===== */
   @media (max-width: 820px) {
@@ -122,6 +134,39 @@ TEMPLATE = """<!DOCTYPE html>
 {{CONTENT}}
 <div class="footer">— ESP32 + MicroPython 学习课程 —</div>
 </div></main>
+<script>
+(function () {
+  var G = {{GLOSSARY_DATA}};
+  var pop = null;
+  function close() { if (pop) { pop.remove(); pop = null; } }
+  function show(el) {
+    close();
+    var d = G[el.getAttribute('data-term')];
+    if (!d) return;
+    pop = document.createElement('div');
+    pop.className = 'gloss-pop';
+    pop.innerHTML = '<div class="t">' + d.t + '</div>' + d.d +
+      '<a class="more" href="词汇表.html">查看完整词汇表 →</a>';
+    document.body.appendChild(pop);
+    var r = el.getBoundingClientRect();
+    var top = r.bottom + 8;
+    var left = Math.min(r.left, window.innerWidth - pop.offsetWidth - 12);
+    if (top + pop.offsetHeight > window.innerHeight - 12) {
+      top = Math.max(12, r.top - pop.offsetHeight - 8);
+    }
+    pop.style.top = top + 'px';
+    pop.style.left = Math.max(12, left) + 'px';
+  }
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('.gloss') : null;
+    if (el) { e.preventDefault(); show(el); return; }
+    if (pop && !pop.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+})();
+</script>
 </body>
 </html>
 """
@@ -130,6 +175,19 @@ TEMPLATE = """<!DOCTYPE html>
 def extract_title(text: str) -> str:
     m = re.search(r"^# (.+)$", text, re.MULTILINE)
     return m.group(1).strip() if m else ""
+
+
+def load_glossary(course_dir: Path) -> dict:
+    """从 词汇表.md 解析词条：id -> {t: 术语名, d: 解释}，供悬浮解释使用。"""
+    path = course_dir / "词汇表.md"
+    glossary = {}
+    if not path.exists():
+        return glossary
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = re.match(r'^- <a id="([^"]+)"></a>\*\*(.+?)\*\* —— (.+)$', line.strip())
+        if m:
+            glossary[m.group(1)] = {"t": m.group(2), "d": m.group(3)}
+    return glossary
 
 
 def build_nav(files: list, current: Path) -> str:
@@ -162,12 +220,21 @@ def build_file(md_path: Path, files: list) -> Path:
         html_body,
     )
 
+    # 词汇表锚点链接 → 可点击的悬浮解释术语（GLOSSARY 由 main 注入）
+    html_body = re.sub(
+        r'<a href="词汇表\.html#([^"]+)">(.*?)</a>',
+        lambda m: '<span class="gloss" data-term="%s">%s</span>'
+        % (m.group(1), m.group(2)),
+        html_body,
+    )
+
     title = extract_title(text) or md_path.stem
 
     html = (
         TEMPLATE.replace("{{TITLE}}", title)
         .replace("{{NAV}}", build_nav(files, md_path))
         .replace("{{CONTENT}}", html_body)
+        .replace("{{GLOSSARY_DATA}}", json.dumps(GLOSSARY, ensure_ascii=False))
     )
 
     out = md_path.with_suffix(".html")
@@ -177,12 +244,14 @@ def build_file(md_path: Path, files: list) -> Path:
 
 
 def main():
+    global GLOSSARY
     course_dir = Path(__file__).parent
+    GLOSSARY = load_glossary(course_dir)
     files = sorted(course_dir.glob("*.md"))
     if not files:
         print("未找到 Markdown 文件")
         return
-    print(f"课程目录: {course_dir}")
+    print(f"课程目录: {course_dir}  词汇表词条: {len(GLOSSARY)}")
     for f in files:
         build_file(f, files)
     # GitHub Pages 首页：用第一个页面（课程总览）作为 index.html

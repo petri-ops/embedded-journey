@@ -73,6 +73,17 @@
   details[open] { border-color: #8aa4f0; }
   hr { border: none; border-top: 1px dashed #cfd6e2; margin: 30px 0; }
   a { color: #5a7dee; }
+  /* ===== 术语悬浮解释 ===== */
+  .gloss { border-bottom: 1px dashed #5a7dee; cursor: help; }
+  .gloss:hover { background: #f0f5ff; }
+  .gloss-pop {
+    position: fixed; z-index: 999; max-width: 340px;
+    background: #fff; border: 1px solid #cfd6e2; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(26,43,74,.18); padding: 12px 14px;
+    font-size: 14px; line-height: 1.7; color: #2c3e50;
+  }
+  .gloss-pop .t { font-weight: 700; color: #1a2b4a; margin-bottom: 4px; }
+  .gloss-pop .more { display: block; margin-top: 8px; font-size: 12.5px; }
   .footer { margin-top: 44px; font-size: 13px; color: #9aa3b2; text-align: center; }
   /* ===== 窄屏：侧栏折叠为顶部横条 ===== */
   @media (max-width: 820px) {
@@ -112,7 +123,7 @@
 <main><div class="content">
 <h1>第 2 课：GPIO 输入 —— 按键与中断</h1>
 <blockquote>
-<p>目标：掌握输入读取、按键<a href="词汇表.html#debounce">消抖</a>、<a href="词汇表.html#polling">轮询</a>与<a href="词汇表.html#interrupt">中断</a>两种范式，理解 <a href="词汇表.html#isr">ISR</a>（中断服务函数）的纪律。
+<p>目标：掌握输入读取、按键<span class="gloss" data-term="debounce">消抖</span>、<span class="gloss" data-term="polling">轮询</span>与<span class="gloss" data-term="interrupt">中断</span>两种范式，理解 <span class="gloss" data-term="isr">ISR</span>（中断服务函数）的纪律。
 实验硬件：板载 BOOT 键（GPIO0）+ 板载 LED（GPIO2），<strong>零接线</strong>即可完成全部实验。</p>
 </blockquote>
 <hr />
@@ -269,5 +280,38 @@ btn.irq(trigger=machine.Pin.IRQ_FALLING, handler=on_press)
 <p><em>课程笔记归档 · 2026-10-22*</p>
 <div class="footer">— ESP32 + MicroPython 学习课程 —</div>
 </div></main>
+<script>
+(function () {
+  var G = {"voltage": {"t": "电压（Voltage, U）", "d": "电的\"推力\"，好比水塔的高度，单位伏特（V）。"}, "current": {"t": "电流（Current, I）", "d": "流动的电量，好比水流量，单位安培（A），板上常用毫安（mA）。"}, "resistance": {"t": "电阻（Resistance, R）", "d": "对电流的阻碍，好比水管的粗细，单位欧姆（Ω）。"}, "ohms-law": {"t": "欧姆定律（Ohm's Law）", "d": "三者的关系式 U = I × R，所有电路计算的地基。"}, "led": {"t": "LED（Light-Emitting Diode）发光二极管", "d": "通电就亮的元件，但自己\"不会节制\"，必须串限流电阻。"}, "forward-voltage": {"t": "导通压降（Forward Voltage, Vf）", "d": "LED 点亮后\"固定吃掉\"的那部分电压（红光约 2.0V），剩下的电压才轮到电阻去分。"}, "pull-up": {"t": "上拉电阻（Pull-up Resistor）", "d": "给输入引脚一个默认高电平的电阻，防止没人按就乱报信号；下拉（pull-down）同理给低电平。"}, "floating": {"t": "悬空（Floating）", "d": "输入脚什么都不接的状态，像天线一样收集干扰，读数乱跳。"}, "voltage-divider": {"t": "分压器（Voltage Divider）", "d": "两个电阻串联、中间取电压：Vout = Vin × R2/(R1+R2)。电位器、光敏、热敏本质都是它。"}, "potentiometer": {"t": "电位器（Potentiometer）", "d": "旋钮式可调电阻，本质是\"手动调节的分压器\"。"}, "brownout": {"t": "Brownout（欠压复位）", "d": "电压被拉垮时芯片主动重启保命的保护机制；排查思路是找出\"谁在偷吃电流\"。"}, "power": {"t": "功率（Power, P = U×I）", "d": "电阻发热的速率，超了会烧黑冒烟。"}, "gpio": {"t": "GPIO（General Purpose Input/Output）通用输入输出", "d": "芯片上可由程序控制的引脚：能输出高/低电平，也能读取外部电平。"}, "pwm": {"t": "PWM（Pulse Width Modulation）脉宽调制", "d": "用极快的开关方波\"伪造\"中间电压：开的时间占比越大，等效电压越高。LED 调光、舵机、调速全靠它。"}, "duty-cycle": {"t": "占空比（Duty Cycle）", "d": "一个周期里高电平的占比，PWM 的\"油门\"。"}, "pulse-width": {"t": "脉宽（Pulse Width）", "d": "高电平持续的绝对时间。舵机读的是它：0.5ms→0°，2.5ms→180°。"}, "adc": {"t": "ADC（Analog-to-Digital Converter）模数转换器", "d": "把连续电压翻译成数字读数（ESP32 是 12 位：0~4095），\"多少伏\"从此变成\"多少格\"。"}, "hysteresis": {"t": "滞回（Hysteresis）", "d": "开和关用两个不同阈值、中间留缓冲带，专治\"临界值附近疯狂抖动\"。空调温控同款思想。"}, "polling": {"t": "轮询（Polling）", "d": "主循环里反复问\"好了吗？好了吗？\"的编程方式，简单但占 CPU、容易漏。"}, "interrupt": {"t": "中断（Interrupt）", "d": "提前向硬件登记\"信号一变就喊我\"，CPU 平时干别的，事件来了立刻响应。"}, "isr": {"t": "ISR（Interrupt Service Routine）中断服务函数", "d": "中断触发时执行的那个函数；纪律：短、快、不分配内存、不 print。"}, "debounce": {"t": "消抖（Debounce）", "d": "机械触点按下时会弹跳几毫秒，用\"延时确认\"或\"时间节流\"过滤假信号。"}, "strapping-pin": {"t": "Strapping Pin 启动配置引脚", "d": "开机瞬间被芯片采样、决定启动方式的引脚（GPIO0/2/12/15），外接电路不能把它们拉错电平。"}, "watchdog": {"t": "看门狗（Watchdog）", "d": "\"你不定期喂我，我就重启系统\"的定时器，专防程序卡死，工业产品必备。"}, "seven-segment": {"t": "数码管（Seven-Segment Display）", "d": "7 段 LED 排成\"8\"字显示数字，段码决定亮哪几笔。"}, "common-cathode": {"t": "共阴 / 共阳（Common Cathode / Anode）", "d": "数码管公共脚接 GND（共阴，高电平点亮）还是 VCC（共阳，低电平点亮）。买错型号段码全反。"}, "servo": {"t": "舵机（Servo / RC Servo）", "d": "自带减速齿轮和角度反馈的小电机：PWM 脉宽决定转到几度，指哪打哪。云台、机械臂、遥控舵面都用它。"}, "stepper-motor": {"t": "步进电机（Stepper Motor）", "d": "靠多组线圈按节拍轮流通电、一步一步精确转动的电机；角度可控、断电能保持位置，代价是慢、费电。"}, "uln2003": {"t": "ULN2003 驱动板", "d": "步进电机的\"翻译官 + 功率放大器\"：GPIO 信号太弱带不动线圈，由它放大后驱动。"}, "buzzer": {"t": "蜂鸣器（Buzzer）", "d": "发声元件，分有源/无源两种（见下）。"}, "buzzer-active": {"t": "有源蜂鸣器（Active Buzzer）", "d": "内置振荡源，通电就响固定音调，当电子开关用，适合报警。"}, "buzzer-passive": {"t": "无源蜂鸣器（Passive Buzzer）", "d": "就是个小喇叭，给什么频率唱什么音，能演奏旋律。"}, "relay": {"t": "继电器（Relay）", "d": "用小电流吸合开关去控制大电流的\"电磁开关\"，可控制 220V 家电（强电，务必注意安全）。"}, "ldr": {"t": "光敏电阻（Photoresistor / LDR）", "d": "光照越强电阻越小的元件，配个电阻就是光强传感器。"}, "thermistor": {"t": "热敏电阻（Thermistor）", "d": "温度改变电阻的元件。"}, "lm35": {"t": "LM35", "d": "模拟温度传感器，输出电压 = 温度 × 10mV/°C，ADC 一读一换算就是温度。"}, "joystick": {"t": "摇杆（Joystick）", "d": "两个电位器（X/Y 轴）加一个按压开关，游戏手柄同款。"}, "keypad": {"t": "矩阵键盘（Matrix Keypad）", "d": "4×4 按键排成行列交叉阵，逐行扫描定位按键，16 个键只占 8 个引脚。"}, "oled": {"t": "OLED", "d": "自发光小屏幕，I2C 接口居多（SSD1306 驱动芯片），显示文字图形。"}, "lcd": {"t": "LCD1602", "d": "能显示两行字符的老牌液晶屏。"}, "tft": {"t": "TFT 彩屏", "d": "彩色液晶屏，SPI 接口（常见 ST7789 驱动），能画图显示图片。"}, "reed-switch": {"t": "干簧管（Reed Switch）", "d": "磁铁靠近触点就导通的开关，门磁报警器的核心。"}, "hall": {"t": "霍尔传感器（Hall Sensor）", "d": "感应磁场的元件，ESP32 芯片里就内置了一个。"}, "pir": {"t": "PIR（Passive Infrared）人体红外", "d": "探测\"移动热源发出的红外线\"（人体、宠物），感应夜灯和安防的核心。"}, "ultrasonic": {"t": "超声波测距（Ultrasonic, HC-SR04）", "d": "发声波、收回波，按时间差算距离，蝙蝠同款原理。"}, "uart": {"t": "UART（Universal Asynchronous Receiver/Transmitter）", "d": "两根线（TX/RX）点对点串行通信，最早的\"串口\"；电脑看 print 就走它。"}, "baud-rate": {"t": "波特率（Baud Rate）", "d": "每秒传多少位，通信双方必须一致，否则收到乱码。"}, "i2c": {"t": "I2C（Inter-Integrated Circuit）", "d": "两根线（SDA 数据 + SCL 时钟）挂一串器件的总线，靠地址点名说话。"}, "sda-scl": {"t": "SDA / SCL", "d": "I2C 的数据线 / 时钟线。"}, "spi": {"t": "SPI（Serial Peripheral Interface）", "d": "四根线的高速总线，彩屏、SD 卡走的高速路。"}, "mosi-miso": {"t": "MOSI / MISO", "d": "SPI 数据线：主出从入（Master Out Slave In）/ 主入从出（Master In Slave Out）。"}, "chip-select": {"t": "CS（Chip Select）片选", "d": "SPI 的\"点名线\"，拉低哪根就选中哪个器件说话。"}, "bus": {"t": "总线（Bus）", "d": "多个器件共享的一组通信线，配合协议协调\"谁在说话\"。"}, "protocol": {"t": "协议（Protocol）", "d": "通信双方事先约定的规则：什么格式、什么节奏、谁先说。协议不通，硬件再好也白搭。"}, "master-slave": {"t": "主机 / 从机（Master / Slave）", "d": "总线上发起通信的一方 / 被动应答的一方。ESP32 通常当主机。"}, "mqtt": {"t": "MQTT", "d": "物联网标准消息协议，发布/订阅模式，轻量到单片机都能跑。"}, "broker": {"t": "Broker（消息代理）", "d": "MQTT 的中转\"邮局\"：发布者和订阅者都只跟它说话，互相不用认识。"}, "topic": {"t": "Topic（主题）", "d": "消息的分类路径，如 `petri/home/light`，斜线分层像网址。"}, "qos": {"t": "QoS（Quality of Service）服务质量", "d": "MQTT 的送达保证等级：0 尽力送（可能丢）、1 至少一次（可能重）、2 恰好一次。"}, "asyncio": {"t": "asyncio", "d": "Python 的异步并发库：多个任务写成多个函数，谁在等待（sleep/网络）谁就让出 CPU，实现\"同时\"干活。"}, "firmware": {"t": "固件（Firmware）", "d": "烧进芯片的\"系统 + 驱动 + 运行环境\"合体；嵌入式世界的\"装系统\"就是刷固件。"}, "rtos": {"t": "RTOS（Real-Time Operating System）实时操作系统", "d": "管理多任务、保证关键代码在确定时间内执行的轻量系统，无界面。"}, "freertos": {"t": "FreeRTOS", "d": "免费开源的 RTOS，ESP32 固件底层跑的就是它；MicroPython 只是它的一个任务。"}, "micropython": {"t": "MicroPython", "d": "能跑在单片机上的精简 Python，让你用 Python 语法控制硬件。"}, "repl": {"t": "REPL（Read-Eval-Print Loop）", "d": "交互式解释器：敲一行执行一行，Thonny 底部那个窗口就是。"}, "flash": {"t": "Flash（闪存）", "d": "板上断电不丢的存储（本板 4MB），你的 .py 文件就住在里面。"}, "cp2102": {"t": "CP2102", "d": "板上的 USB 转串口芯片，电脑和 ESP32 对话的翻译官。"}, "esptool": {"t": "esptool / mpremote", "d": "乐鑫官方命令行工具：esptool 烧固件，mpremote 传文件、跑脚本。"}};
+  var pop = null;
+  function close() { if (pop) { pop.remove(); pop = null; } }
+  function show(el) {
+    close();
+    var d = G[el.getAttribute('data-term')];
+    if (!d) return;
+    pop = document.createElement('div');
+    pop.className = 'gloss-pop';
+    pop.innerHTML = '<div class="t">' + d.t + '</div>' + d.d +
+      '<a class="more" href="词汇表.html">查看完整词汇表 →</a>';
+    document.body.appendChild(pop);
+    var r = el.getBoundingClientRect();
+    var top = r.bottom + 8;
+    var left = Math.min(r.left, window.innerWidth - pop.offsetWidth - 12);
+    if (top + pop.offsetHeight > window.innerHeight - 12) {
+      top = Math.max(12, r.top - pop.offsetHeight - 8);
+    }
+    pop.style.top = top + 'px';
+    pop.style.left = Math.max(12, left) + 'px';
+  }
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('.gloss') : null;
+    if (el) { e.preventDefault(); show(el); return; }
+    if (pop && !pop.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+})();
+</script>
 </body>
 </html>
