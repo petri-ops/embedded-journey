@@ -104,6 +104,7 @@
     <a href="05-MQTT与asyncio.html">第 5 课：MQTT 与 asyncio —— 跨上互联网</a>
     <a href="06-结业项目.html">第 6 课：结业项目 —— 四选一，独立交付</a>
     <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
+    <a href="词汇表.html">词汇表（Glossary）</a>
     <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
   </nav>
   <div class="side-foot">单文件 · 无依赖 · 可直接分享</div>
@@ -150,10 +151,10 @@
 </code></pre>
 <p>初中默认电路里只有"理想电阻"这种乖学生。现实的 LED、按键、传感器各有脾气 —— 下面三个坑就是初中没讲的。</p>
 <hr />
-<h2>坑一：LED 不遵守欧姆定律（非线性器件）</h2>
+<h2>坑一：LED 不遵守<a href="词汇表.html#ohms-law">欧姆定律</a>（非线性器件）</h2>
 <p>LED 是二极管，行为像一道水闸：</p>
 <ul>
-<li>电压低于<strong>导通压降</strong> → 基本不导通，不亮</li>
+<li>电压低于<strong><a href="词汇表.html#forward-voltage">导通压降</a></strong> → 基本不导通，不亮</li>
 <li>超过压降 → 闸门全开，<strong>电流近乎无限上涨，自己完全不会节制</strong></li>
 </ul>
 <p>常见 LED 导通压降：红/黄 ≈ 2.0V，蓝/白/绿 ≈ 3.0V。</p>
@@ -205,7 +206,7 @@ R = (电源电压 - Vf) / 目标电流
 板厂替你兜底的只有板上的东西，外接元件必须自己接电阻。</p>
 </blockquote>
 <hr />
-<h2>坑二：供电是有上限的（Brownout 事故复盘）</h2>
+<h2>坑二：供电是有上限的（<a href="词汇表.html#brownout">Brownout</a> 事故复盘）</h2>
 <p>每条供电路径都有天花板：</p>
 <ul>
 <li>单个 GPIO：绝对极限 40mA，<strong>长期建议 ≤ 20mA</strong></li>
@@ -229,9 +230,9 @@ R = (电源电压 - Vf) / 目标电流
 <p>本课场景：1.3V × 5.9mA ≈ <strong>8mW</strong>，小电阻（1/4W = 250mW）毫无压力。
 但做大电流项目（电机、电源）前必须先算功率账，否则电阻烧黑冒烟。</p>
 <hr />
-<h2>5. 上拉电阻：输入世界的地基</h2>
+<h2>5. <a href="词汇表.html#pull-up">上拉电阻</a>（Pull-up Resistor）：输入世界的地基</h2>
 <p><strong>输出</strong> = 引脚主动给电平；<strong>输入</strong> = 引脚读外部电平。</p>
-<p>输入的大坑：<strong>悬空（floating）</strong> —— 什么都不接的输入脚像天线，干扰一来 0/1 乱跳，"按键没按它自己触发"。</p>
+<p>输入的大坑：<strong><a href="词汇表.html#floating">悬空</a>（floating）</strong> —— 什么都不接的输入脚像天线，干扰一来 0/1 乱跳，"按键没按它自己触发"。</p>
 <p>解法：用电阻给引脚一个<strong>默认立场</strong>：</p>
 <pre><code>        3.3V
          │
@@ -257,7 +258,7 @@ GPIO ────┤
 </blockquote>
 <p>对称地还有<strong>下拉电阻</strong>（默认 0、按下变 1），后面按键课会用。</p>
 <hr />
-<h2>6. 分压器：所有模拟传感器的通用原理（第 3 课伏笔）</h2>
+<h2>6. <a href="词汇表.html#voltage-divider">分压器</a>（Voltage Divider）：所有模拟传感器的通用原理（第 3 课伏笔）</h2>
 <p>两个电阻串联，中间取电压：</p>
 <pre><code>Vin ──[R1]──┬──[R2]── GND
             │

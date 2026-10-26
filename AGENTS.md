@@ -9,6 +9,7 @@
 | `esp32-course/00-课程总览.md` | **进度唯一事实源**：课程表、学习日志、踩坑记录、常用命令 |
 | `esp32-course/成长档案.md` | 概念追踪、提问日志、错题本、能力雷达、成长路线 |
 | `esp32-course/配件清单.md` | 套件配件（进阶版 36 项） |
+| `esp32-course/词汇表.md` | 中英对照术语速查表（讲义术语可点击跳转） |
 | `esp32-course/NN-*.md` | 各课笔记；同目录 `build_html.py` 可生成 HTML 分享版 |
 | `esp32/` | 板子上运行的 MicroPython 代码 |
 | `firmware/` | 固件 bin 备份 |

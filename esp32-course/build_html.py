@@ -155,10 +155,10 @@ def build_file(md_path: Path, files: list) -> Path:
         extensions=["tables", "fenced_code", "md_in_html", "sane_lists"],
     )
 
-    # 站内 .md 链接改写为 .html
+    # 站内 .md 链接改写为 .html（保留 #锚点）
     html_body = re.sub(
-        r'href="([^"]+?)\.md"',
-        lambda m: 'href="' + m.group(1) + '.html"',
+        r'href="([^"]+?)\.md(#[^"]*)?"',
+        lambda m: 'href="' + m.group(1) + '.html' + (m.group(2) or '') + '"',
         html_body,
     )
 

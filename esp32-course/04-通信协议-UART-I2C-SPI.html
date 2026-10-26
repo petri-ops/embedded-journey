@@ -104,6 +104,7 @@
     <a href="05-MQTT与asyncio.html">第 5 课：MQTT 与 asyncio —— 跨上互联网</a>
     <a href="06-结业项目.html">第 6 课：结业项目 —— 四选一，独立交付</a>
     <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
+    <a href="词汇表.html">词汇表（Glossary）</a>
     <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
   </nav>
   <div class="side-foot">单文件 · 无依赖 · 可直接分享</div>
@@ -152,7 +153,7 @@
 </table>
 <hr />
 <h2>1. UART：点对点私聊（10 分钟速通）</h2>
-<p>UART 你早已概念通关（串口问答那课）：TX 发、RX 收，两端约定<strong>波特率</strong>（每秒位数）。</p>
+<p>UART 你早已概念通关（串口问答那课）：TX 发、RX 收，两端约定<strong><a href="词汇表.html#baud-rate">波特率</a>（baud rate）</strong>（每秒位数）。</p>
 <p><strong>实验：自发自收（回环）</strong>——用一根杜邦线把 GPIO17（TX2）和 GPIO16（RX2）短接，让板子跟自己聊天：</p>
 <pre><code class="language-python">from machine import UART
 
@@ -217,7 +218,7 @@ while True:
 <hr />
 <h2>3. SPI：高速公路（彩屏为什么不用 I2C）</h2>
 <p>I2C 每个时钟搬一位、还要地址应答，跑彩色屏幕（240×240×16位色 ≈ 每帧 112KB）太慢。
-SPI 用<strong>更多线换更快速度</strong>：时钟线 SCK 打拍，MOSI 主出从入（MISO 主入从出）并行铺数据，每挂一个器件多用一根 CS 片选线（"CS 拉低 = 现在轮到你"）。</p>
+SPI 用<strong>更多线换更快速度</strong>：时钟线 SCK 打拍，MOSI 主出从入（MISO 主入从出）并行铺数据，每挂一个器件多用一根 <a href="词汇表.html#chip-select">CS 片选</a>（Chip Select）线（"CS 拉低 = 现在轮到你"）。</p>
 <p><strong>ST7789 彩屏接线</strong>：</p>
 <table>
 <thead>

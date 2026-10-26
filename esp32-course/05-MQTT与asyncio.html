@@ -104,6 +104,7 @@
     <a href="05-MQTT与asyncio.html" class="active">第 5 课：MQTT 与 asyncio —— 跨上互联网</a>
     <a href="06-结业项目.html">第 6 课：结业项目 —— 四选一，独立交付</a>
     <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
+    <a href="词汇表.html">词汇表（Glossary）</a>
     <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
   </nav>
   <div class="side-foot">单文件 · 无依赖 · 可直接分享</div>
@@ -118,7 +119,7 @@
 <h2>0. 从"局域网红人"到"互联网公民"</h2>
 <p><code>main.py</code> 的网页控制有个天花板：<strong>只有同一 WiFi 下的设备能访问</strong>。出差在外想看看家里的灯？没戏。</p>
 <p>要跨上互联网，就要回答一个问题：家里的板子（没有公网 IP、随时可能掉线）和你的手机，如何找到彼此？</p>
-<p>答案是** broker（消息代理）**模式——双方不直接对话，都只跟一个永不掉线的"邮局"通信。</p>
+<p>答案是 <strong><a href="词汇表.html#broker">broker</a>（消息代理）</strong> 模式——双方不直接对话，都只跟一个永不掉线的"邮局"通信。</p>
 <hr />
 <h2>1. MQTT：物联网的"邮局 + 报刊订阅"</h2>
 <h3>三个角色</h3>
@@ -128,7 +129,7 @@
                       petri/home/led/cmd
 </code></pre>
 <ul>
-<li><strong>Publisher</strong> 发布消息到某个<strong>主题（topic）</strong></li>
+<li><strong>Publisher</strong> 发布消息到某个<strong><a href="词汇表.html#topic">主题</a>（topic）</strong></li>
 <li><strong>Subscriber</strong> 订阅感兴趣的主题，有新消息立刻收到</li>
 <li><strong>Broker</strong> 居中转发，双方互不需要知道对方的存在</li>
 </ul>
@@ -138,7 +139,7 @@
 <li><strong>发布者和订阅者解耦</strong>——板子不需要知道"谁在看我"，手机也不需要知道"谁在发"，都只认识 broker</li>
 <li><strong>天然一对多</strong>——一个温度数据，手机、电脑、服务器可以同时订阅</li>
 <li><strong>轻量</strong>——协议头最小 2 字节，拨号上网时代的嵌入式设备都扛得住</li>
-<li>QoS（消息质量等级）：0 最多发一次（丢就丢）/ 1 至少一次（可能重复）/ 4 恰好一次。传感器上报用 0，控制命令用 1</li>
+<li><a href="词汇表.html#qos">QoS</a>（消息质量等级）：0 最多发一次（丢就丢）/ 1 至少一次（可能重复）/ 2 恰好一次。传感器上报用 0，控制命令用 1</li>
 </ol>
 <h3>安全提醒（威胁模型回扣！）</h3>
 <p>我们用公共测试 broker（<code>broker.emqx.io</code>），它像广场上的公告栏：<strong>你发的每条消息全世界都能订阅</strong>。
@@ -187,7 +188,7 @@ while True:
 <h2>3. 坑：单循环的崩溃现场 → asyncio 登场</h2>
 <p>上面的程序藏着隐患——<code>time.sleep(5)</code> 期间命令进不来（最坏等 5 秒灯才响应）。要响应快就把 sleep 缩短？那消息发布又太频繁。</p>
 <p>本质矛盾：<strong>采集、收命令、发数据是三件节奏不同的事，单循环只能串行伺候一个</strong>。</p>
-<p><code>asyncio</code>（异步并发）是正解：多个任务"同时"跑，谁需要等待（sleep、网络）谁就让出 CPU。</p>
+<p><a href="词汇表.html#asyncio"><code>asyncio</code></a>（异步并发）是正解：多个任务"同时"跑，谁需要等待（sleep、网络）谁就让出 CPU。</p>
 <pre><code class="language-python">import asyncio
 from umqtt.simple import MQTTClient
 from machine import Pin, ADC

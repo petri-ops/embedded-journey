@@ -104,6 +104,7 @@
     <a href="05-MQTT与asyncio.html">第 5 课：MQTT 与 asyncio —— 跨上互联网</a>
     <a href="06-结业项目.html">第 6 课：结业项目 —— 四选一，独立交付</a>
     <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
+    <a href="词汇表.html">词汇表（Glossary）</a>
     <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
   </nav>
   <div class="side-foot">单文件 · 无依赖 · 可直接分享</div>
@@ -111,7 +112,7 @@
 <main><div class="content">
 <h1>第 3 课：ADC 与 PWM 进阶 —— 模拟量与执行器</h1>
 <blockquote>
-<p>目标：掌握 ADC 模拟量采集（摇杆/光敏/温度），学会用 PWM 驱动舵机、蜂鸣器、步进电机，做出"感知→决策→动作"的完整闭环。
+<p>目标：掌握 <a href="词汇表.html#adc">ADC</a> 模拟量采集（摇杆/光敏/温度），学会用 <a href="词汇表.html#pwm">PWM</a> 驱动<a href="词汇表.html#servo">舵机</a>、<a href="词汇表.html#buzzer">蜂鸣器</a>、<a href="词汇表.html#stepper-motor">步进电机</a>，做出"感知→决策→动作"的完整闭环。
 实验硬件：双轴摇杆、光敏模块、LM35 温度、MG90S 舵机、无源蜂鸣器、步进电机+ULN2003 驱动板。
 接线红线：模拟量只能接 <strong>ADC1 引脚（GPIO32~39）</strong>——ADC2 开 WiFi 后读不了（第 1 课红线表）；GPIO34~39 只能输入，接传感器输出脚没问题。</p>
 </blockquote>
@@ -201,7 +202,7 @@ print(&quot;温度约:&quot;, temp_mv / 10, &quot;°C&quot;)
 <p>注意：诚实声明：LM35 手册标称 4V 起供电，我们用 3.3V 属于"超规但能用"，读数偏低、看趋势够用。正经产品要用其他传感器（如 DS18B20 数字温度传感器，第 4 课后你就能自己接）。</p>
 </blockquote>
 <hr />
-<h2>2. 第一个坑：临界值抖动 → 滞回（Hysteresis）</h2>
+<h2>2. 第一个坑：临界值抖动 → <a href="词汇表.html#hysteresis">滞回</a>（Hysteresis）</h2>
 <p>做光控灯最直觉的写法：</p>
 <pre><code class="language-python">if light.read() &gt; 2500:      # 暗 → 开灯
     led.value(1)
@@ -232,7 +233,7 @@ elif light.read() &lt; 1800:    # 相当亮才关
 <tbody>
 <tr>
 <td>LED</td>
-<td>占空比 = 亮度</td>
+<td><a href="词汇表.html#duty-cycle">占空比</a>（duty cycle）= 亮度</td>
 <td>duty 0~1023</td>
 </tr>
 <tr>
@@ -247,7 +248,7 @@ elif light.read() &lt; 1800:    # 相当亮才关
 </tr>
 </tbody>
 </table>
-<h3>3.1 舵机 MG90S：PWM 的"时长语言"</h3>
+<h3>3.1 <a href="词汇表.html#servo">舵机</a>（Servo）MG90S：PWM 的"时长语言"</h3>
 <p>舵机内有个小电路：把 50Hz 信号里高电平的<strong>持续时间</strong>翻译成角度：</p>
 <pre><code>周期 20ms（freq=50）
 高电平 0.5ms → 0°      高电平 1.5ms → 90°      高电平 2.5ms → 180°
@@ -270,7 +271,7 @@ while True:
     for a in range(180, -1, -10):         # 再扫回来
         set_angle(a); time.sleep_ms(100)
 </code></pre>
-<h3>3.2 无源蜂鸣器：PWM 的"频率语言"</h3>
+<h3>3.2 <a href="词汇表.html#buzzer-passive">无源蜂鸣器</a>（Passive Buzzer）：PWM 的"频率语言"</h3>
 <p>无源蜂鸣器像个小喇叭——你给什么频率它发什么音。<strong>频率=音高，duty=音量开关</strong>：</p>
 <pre><code class="language-python">buzzer = PWM(Pin(25), freq=523, duty=0)   # duty=0 静音
 
@@ -291,8 +292,8 @@ for n, b in zip(melody, beat):
     time.sleep_ms(50)                     # 音符间留缝，更清晰
 </code></pre>
 <p>（有源蜂鸣器则相反：通电就响固定音，duty 数字脚当开关用，做报警器更省事。）</p>
-<h3>3.3 步进电机 28BYJ-48：不听 PWM，听"节拍"</h3>
-<p>步进电机靠 4 组线圈按顺序通电，一步一步精确走。ULN2003 驱动板接 GPIO16/17/18/19，红线→<strong>VIN(5V)</strong>：</p>
+<h3>3.3 <a href="词汇表.html#stepper-motor">步进电机</a>（Stepper Motor）28BYJ-48：不听 PWM，听"节拍"</h3>
+<p>步进电机靠 4 组线圈按顺序通电，一步一步精确走。<a href="词汇表.html#uln2003">ULN2003 驱动板</a>接 GPIO16/17/18/19，红线→<strong>VIN(5V)</strong>：</p>
 <pre><code class="language-python">from machine import Pin
 import time
 
