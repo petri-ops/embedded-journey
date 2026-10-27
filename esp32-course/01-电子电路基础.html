@@ -42,6 +42,10 @@
   }
   .sidebar nav a:hover { background: #f0f5ff; color: #3a5bd9; }
   .sidebar nav a.active { background: #5a7dee; color: #fff; font-weight: 600; }
+  .nav-group-title {
+    margin: 16px 0 4px; padding: 0 12px;
+    font-size: 12.5px; color: #9aa3b2; letter-spacing: 2px;
+  }
   .side-foot {
     margin-top: 18px; padding: 10px 12px 0; border-top: 1px solid #eef1f6;
     font-size: 12px; color: #9aa3b2;
@@ -99,6 +103,32 @@
   .gloss-pop .t { font-weight: 700; color: #1a2b4a; margin-bottom: 4px; }
   .gloss-pop .more { display: block; margin-top: 8px; font-size: 12.5px; }
   .footer { margin-top: 44px; font-size: 13px; color: #9aa3b2; text-align: center; }
+  /* ===== 门户首页（按篇分区） ===== */
+  .portal-sub { color: #9aa3b2; margin: -6px 0 10px; font-size: 15px; }
+  .portal-section { margin: 34px 0; }
+  .portal-section > h2 { margin-top: 0; }
+  .portal-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
+  }
+  .portal-card {
+    display: block; background: #fff; border: 1px solid #dfe4ec;
+    border-radius: 12px; padding: 14px 16px; text-decoration: none;
+    color: inherit; transition: border-color .15s, box-shadow .15s;
+  }
+  .portal-card:hover {
+    border-color: #8aa4f0; box-shadow: 0 4px 14px rgba(26,43,74,.10);
+    text-decoration: none;
+  }
+  .portal-card .t { font-weight: 600; color: #1a2b4a; font-size: 15.5px; }
+  .portal-card .d { color: #6b7690; font-size: 13.5px; margin-top: 6px; line-height: 1.6; }
+  .portal-card .s {
+    display: inline-block; margin-top: 10px; font-size: 12.5px;
+    padding: 2px 10px; border-radius: 999px;
+    background: #eef1f6; color: #6b7690;
+  }
+  .portal-card .s.ok { background: #e7f6ec; color: #1d7a43; }
+  .portal-card .s.wip { background: #fdf3e0; color: #a8681c; }
   /* ===== 窄屏：导航折叠为顶栏，点开下拉目录 ===== */
   @media (max-width: 820px) {
     body { display: block; }
@@ -117,6 +147,7 @@
     }
     .sidebar nav.open { display: block; }
     .sidebar nav a { display: block; margin: 2px 0; padding: 10px 12px; }
+    .sidebar nav .nav-group-title { margin: 10px 12px 2px; padding: 0; }
     .side-foot { display: none; }
     .content { padding: 20px 16px 50px; }
     h1 { font-size: 24px; }
@@ -136,14 +167,18 @@
   </div>
   <nav id="courseNav">
     <a href="00-课程总览.html">📚 课程总览</a>
+    <div class="nav-group-title">课程篇</div>
     <a href="01-电子电路基础.html" class="active">第 1 课：电子电路基础</a>
     <a href="02-GPIO输入-按键与中断.html">第 2 课：GPIO 输入 —— 按键与中断</a>
     <a href="03-ADC与PWM进阶.html">第 3 课：ADC 与 PWM 进阶 —— 模拟量与执行器</a>
     <a href="04-通信协议-UART-I2C-SPI.html">第 4 课：通信协议 —— UART / I2C / SPI</a>
     <a href="05-MQTT与asyncio.html">第 5 课：MQTT 与 asyncio —— 跨上互联网</a>
     <a href="06-结业项目.html">第 6 课：结业项目 —— 四选一，独立交付</a>
+    <div class="nav-group-title">方向篇</div>
     <a href="07-产品形态与产品化路线.html">07 · 方向篇：产品形态与产品化路线</a>
+    <div class="nav-group-title">记录篇</div>
     <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
+    <div class="nav-group-title">工具箱</div>
     <a href="词汇表.html">词汇表（Glossary）</a>
     <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
   </nav>

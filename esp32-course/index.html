@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ESP32 + MicroPython 学习课程</title>
+<title>课程首页</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -42,6 +42,10 @@
   }
   .sidebar nav a:hover { background: #f0f5ff; color: #3a5bd9; }
   .sidebar nav a.active { background: #5a7dee; color: #fff; font-weight: 600; }
+  .nav-group-title {
+    margin: 16px 0 4px; padding: 0 12px;
+    font-size: 12.5px; color: #9aa3b2; letter-spacing: 2px;
+  }
   .side-foot {
     margin-top: 18px; padding: 10px 12px 0; border-top: 1px solid #eef1f6;
     font-size: 12px; color: #9aa3b2;
@@ -99,6 +103,32 @@
   .gloss-pop .t { font-weight: 700; color: #1a2b4a; margin-bottom: 4px; }
   .gloss-pop .more { display: block; margin-top: 8px; font-size: 12.5px; }
   .footer { margin-top: 44px; font-size: 13px; color: #9aa3b2; text-align: center; }
+  /* ===== 门户首页（按篇分区） ===== */
+  .portal-sub { color: #9aa3b2; margin: -6px 0 10px; font-size: 15px; }
+  .portal-section { margin: 34px 0; }
+  .portal-section > h2 { margin-top: 0; }
+  .portal-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
+  }
+  .portal-card {
+    display: block; background: #fff; border: 1px solid #dfe4ec;
+    border-radius: 12px; padding: 14px 16px; text-decoration: none;
+    color: inherit; transition: border-color .15s, box-shadow .15s;
+  }
+  .portal-card:hover {
+    border-color: #8aa4f0; box-shadow: 0 4px 14px rgba(26,43,74,.10);
+    text-decoration: none;
+  }
+  .portal-card .t { font-weight: 600; color: #1a2b4a; font-size: 15.5px; }
+  .portal-card .d { color: #6b7690; font-size: 13.5px; margin-top: 6px; line-height: 1.6; }
+  .portal-card .s {
+    display: inline-block; margin-top: 10px; font-size: 12.5px;
+    padding: 2px 10px; border-radius: 999px;
+    background: #eef1f6; color: #6b7690;
+  }
+  .portal-card .s.ok { background: #e7f6ec; color: #1d7a43; }
+  .portal-card .s.wip { background: #fdf3e0; color: #a8681c; }
   /* ===== 窄屏：导航折叠为顶栏，点开下拉目录 ===== */
   @media (max-width: 820px) {
     body { display: block; }
@@ -117,6 +147,7 @@
     }
     .sidebar nav.open { display: block; }
     .sidebar nav a { display: block; margin: 2px 0; padding: 10px 12px; }
+    .sidebar nav .nav-group-title { margin: 10px 12px 2px; padding: 0; }
     .side-foot { display: none; }
     .content { padding: 20px 16px 50px; }
     h1 { font-size: 24px; }
@@ -135,15 +166,19 @@
     <button class="nav-toggle" id="navToggle" type="button" aria-label="展开或收起目录">☰ 目录</button>
   </div>
   <nav id="courseNav">
-    <a href="00-课程总览.html" class="active">📚 课程总览</a>
+    <a href="00-课程总览.html">📚 课程总览</a>
+    <div class="nav-group-title">课程篇</div>
     <a href="01-电子电路基础.html">第 1 课：电子电路基础</a>
     <a href="02-GPIO输入-按键与中断.html">第 2 课：GPIO 输入 —— 按键与中断</a>
     <a href="03-ADC与PWM进阶.html">第 3 课：ADC 与 PWM 进阶 —— 模拟量与执行器</a>
     <a href="04-通信协议-UART-I2C-SPI.html">第 4 课：通信协议 —— UART / I2C / SPI</a>
     <a href="05-MQTT与asyncio.html">第 5 课：MQTT 与 asyncio —— 跨上互联网</a>
     <a href="06-结业项目.html">第 6 课：结业项目 —— 四选一，独立交付</a>
+    <div class="nav-group-title">方向篇</div>
     <a href="07-产品形态与产品化路线.html">07 · 方向篇：产品形态与产品化路线</a>
+    <div class="nav-group-title">记录篇</div>
     <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
+    <div class="nav-group-title">工具箱</div>
     <a href="词汇表.html">词汇表（Glossary）</a>
     <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
   </nav>
@@ -151,317 +186,37 @@
 </aside>
 <main><div class="content">
 <h1>ESP32 + MicroPython 学习课程</h1>
-<blockquote>
-<p>学习方式（2026-10-26 起）：讲义网站自学 → 实操验证 → 交作业由 AI 助手批改 → 归档自动更新网站
-课程管理：本项目由 <code>.agents/skills/esp32-course</code> 技能驱动（说"上课 / 下一课 / 看进度 / 交作业 / 记录踩坑"即可）
-硬件：ESP32-S3 开发板（第三方 N16R8 双 Type-C：16MB Flash + 8MB PSRAM，原生 USB + CH343P，端口号不固定）｜ 配件：进阶版套件 36 项（见 <a href="配件清单.html">配件清单</a>）
-固件：MicroPython v1.29.0（S3 Octal-SPIRAM + XMC 启动补丁，见踩坑表 10-27）｜ 串口：COMx（会变，以设备管理器为准）｜ 旧板已判废，详见 <code>hardware.md</code></p>
-<p>📄 <strong>文档格式说明</strong>：每课同时保存 <code>.md</code>（编辑源码）和 <code>.html</code>（分享版）。
-<code>.html</code> 是单文件、无依赖，双击浏览器打开即可，也可直接发给朋友。
-修改 <code>.md</code> 后在本目录运行 <code>python build_html.py</code> 重新生成。</p>
-</blockquote>
-<h2>课程路线</h2>
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>课程</th>
-<th>状态</th>
-<th>核心内容</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td><a href="01-电子电路基础.html">电子电路基础</a></td>
-<td>✅ 已完成讲授（待交作业）</td>
-<td>欧姆定律、LED 限流、供电上限、Brownout 复盘、上拉电阻、分压器、数码管接线方案</td>
-</tr>
-<tr>
-<td>2</td>
-<td><a href="02-GPIO输入-按键与中断.html">GPIO 输入 —— 按键与中断</a></td>
-<td>✅ 已完成讲授（待实操）</td>
-<td>轮询 vs 中断、消抖、IRQ_FALLING、ISR 三纪律、长按短按；项目：按键+网页双通道控灯</td>
-</tr>
-<tr>
-<td>3</td>
-<td><a href="03-ADC与PWM进阶.html">ADC 与 PWM 进阶</a></td>
-<td>讲义已上线（待自学）</td>
-<td>模拟量采集（摇杆/光敏/LM35）、滞回光控灯、舵机、蜂鸣器旋律、步进电机</td>
-</tr>
-<tr>
-<td>4</td>
-<td><a href="04-通信协议-UART-I2C-SPI.html">通信协议 UART / I2C / SPI</a></td>
-<td>讲义已上线（待自学）</td>
-<td>UART 回环、I2C 扫总线、OLED、SPI 彩屏、矩阵键盘；陌生模块四步法</td>
-</tr>
-<tr>
-<td>5</td>
-<td><a href="05-MQTT与asyncio.html">MQTT 与 asyncio</a></td>
-<td>🚧 远程实验 v2 已跑通（待自学）</td>
-<td>发布/订阅、公共 broker 安全、并发三任务；项目：跨互联网环境监控</td>
-</tr>
-<tr>
-<td>6</td>
-<td><a href="06-结业项目.html">结业项目</a></td>
-<td>⬜ 四选一</td>
-<td>门磁报警 / 气象站 / 红外云台 / 感应夜灯；阶段 0 毕业考试</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>⚠️ <strong>换板适配（10-27 完成）</strong>：第 1-5 课的引脚表/代码、配件清单、<code>seg.py</code> 注释都已按 ESP32-S3 重写（理论内容不变）。接线以 <code>hardware.md</code> 的「S3 课程引脚分配表」为准；GPIO26-37 被 Flash/PSRAM 占用，GPIO22-25 不存在，19/20 是 USB，43/44 是 UART0，Strapping 为 0/3/45/46。
-🧪 <strong>仿真</strong>：Wokwi 支持 ESP32-S3 + MicroPython（详见 <code>wokwi/README.md</code>），可练 GPIO/I2C/SPI/显示/网络逻辑；但电气红线、Flash/PSRAM 占用、ADC 实际电压与 WiFi 射频<strong>不被仿真</strong>，最终仍要回板子验证。</p>
-</blockquote>
-<h2>本目录其他文件（代码实践区）</h2>
-<ul>
-<li><code>../esp32/station_main.py</code> —— <strong>门户入口</strong>（上传为板子 <code>main.py</code>）</li>
-<li><code>../esp32/station/</code> —— <strong>门户框架</strong>：<code>core.py</code>、<code>web.py</code>、<code>mqtt_link.py</code>、<code>features/</code>，扩展指南见 <code>README.md</code></li>
-<li><code>../esp32/remote_station.py</code> —— 旧版单文件监测站（回滚备份）</li>
-<li><code>../esp32/main.py</code> —— 旧网页控灯服务（历史项目，不是当前门户入口）</li>
-<li><code>../esp32/wifi_config.py</code> —— WiFi 密码配置（<strong>不入库</strong>；首次使用复制 <code>wifi_config.example.py</code> 并上传到板子）</li>
-<li><code>../esp32/seg.py</code> —— 数码管段码程序（已按 S3 换脚 a4 b5 c6 d7 e15 f16 g17 dp18；段码仍按共阳，套件共阴需取反）</li>
-<li><code>../esp32/rgb_led.py</code> —— 板载 WS2812 RGB 测试（GPIO48，出厂例程同款）</li>
-<li><code>../wokwi/</code> —— Wokwi 仿真说明 + 第 1 课 LED 样例（无板练习用）</li>
-<li><code>../ESP32-S3开发板N16R8焊接/</code> —— 出厂资料（原理图 <code>ESP32-S3-SCH.pdf</code>、例程、固件、下载工具；大文件已 gitignore）</li>
-<li><code>../esp32/led.py</code> <code>pwm.py</code> <code>wifi.py</code> —— 练手代码备份</li>
-<li><code>07-产品形态与产品化路线.md</code> —— 方向篇（非课程表课程）：开发板→模组→PCB→工业级的形态谱系与成长路线落点</li>
-<li><code>../firmware/ESP32_GENERIC-20260824-v1.29.0.bin</code> —— 固件备份</li>
-<li><code>成长档案.md</code> —— 概念追踪、提问日志、能力雷达、成长路线（skill 每次会话维护）</li>
-<li><code>词汇表.md</code> —— 中英对照领域词汇速查（讲义中的术语可点击跳转）</li>
-</ul>
-<h2>常用命令备忘</h2>
-<pre><code class="language-bash"># 查串口（端口号会变：运行态 PID_4001，下载模式 PID_1001）
-powershell -NoProfile -Command &quot;[System.IO.Ports.SerialPort]::GetPortNames()&quot;
-
-# 上传文件到板子 / 重启 / 直接运行本地脚本（COMx 换成实际端口）
-python -m mpremote connect COMx cp D:/1.WorkDir/PLC/esp32/station_main.py :main.py
-python -m mpremote connect COMx reset
-python -m mpremote connect COMx run D:/1.WorkDir/PLC/esp32/seg.py
-
-# 健康检查：能打印出芯片信息就说明固件在跑（没反应先查端口/是否停在下载模式）
-python -m mpremote connect COMx exec &quot;import sys,machine,esp; print(sys.implementation._machine, machine.freq(), esp.flash_size())&quot;
-
-# 烧录固件（S3：先按住 BOOT 点 RST 进下载模式，或 REPL 里 import machine; machine.bootloader()）
-python -m esptool --port COMx erase-flash
-python -m esptool --port COMx --baud 460800 write-flash 0x0 D:/1.WorkDir/PLC/firmware/ESP32_GENERIC_S3-SPIRAM_OCT-20260824-v1.29.0-xmc207018.bin
-</code></pre>
-<h2>项目门户 v4（core + features）</h2>
-<ul>
-<li>网页（局域网）：<strong>http://mpy-esp32s3.local/</strong>（固件自带 mDNS）或 http://192.168.0.100/</li>
-<li>定位：<strong>控制 + 呈现 + 交互</strong>，不是开发平台；代码/Git/构建仍在 PC</li>
-<li>架构：<code>station/core.py</code>（WiFi/NTP/状态/命令/日志/看门狗）、<code>web.py</code>（独立线程 + 通用 UI/API）、<code>mqtt_link.py</code>（独立线程 + 聚合状态/命令）、<code>features/</code>（system/led/boot/network/weather/log）</li>
-<li><strong>Feature 契约</strong>：<code>id/title/order/fields/card_fields/actions/list_key/has_loop</code> + <code>init/status/command/loop</code>；新增功能 = 加一个 feature 文件 + 注册，网页卡片/详情/API/MQTT 自动带上（扩展指南 <code>esp32/station/README.md</code>）</li>
-<li>页面：动态卡片、点击详情（网络扫描/天气刷新在打开详情时自动执行）、控制动作（LED 开关/PWM）、日志图表/表格/下载、在线自动重试</li>
-<li>API：<code>/api/features</code>、<code>/api/status</code>、<code>/api/cmd?feature=led&amp;action=pwm&amp;value=512</code>、<code>/api/logs</code>、<code>/download</code></li>
-<li>MQTT：前缀 <code>petri/lab-0172ea</code>；状态 <code>&lt;prefix&gt;/status</code> 聚合 JSON；命令 <code>&lt;prefix&gt;/cmd</code> 格式 <code>feature:action[:value]</code>（<code>led:on</code>、<code>led:pwm:512</code>、<code>network:scan</code>、<code>weather:refresh</code>、<code>log:now</code>），兼容旧 <code>on/off/pwm</code>；ACK <code>&lt;prefix&gt;/ack</code></li>
-<li>公共 broker 偶发 <code>err</code> 只影响 MQTT，网页不受影响；要稳定换私有 broker</li>
-<li>天气：中国天气网镜像（免 key），杭州 <code>101210101</code>；NTP：<code>ntp.aliyun.com</code>（UTC+8）；CSV：<code>/data/log.csv</code></li>
-<li>板载感知：MCU 温度、WiFi RSSI/邻居、BOOT 键；<strong>没有</strong>环境温湿度/光照/PIR/IMU</li>
-<li>BLE：暂未作为 feature 启用（GATT 连接会拖垮 WiFi，后续单独 feature）</li>
-<li>自恢复：<code>main.py</code> 自启；web/MQTT 各自线程；<code>net_task</code> 重连 WiFi；看门狗 120 秒；断电恢复后自动重连，主题和 CSV 不变</li>
-<li>供电：5V 充电器可 24 小时跑；电脑 USB 供电时电脑关机=断电，恢复后自动重启并重连</li>
-<li>地址：mDNS 名字不变（设备支持 <code>.local</code> 即可，无需固定 IP）；PC 若挂代理需把 <code>*.local</code> 加入绕过</li>
-<li>部署：上传 <code>station/</code> + <code>station_main.py</code>（为 <code>main.py</code>）；回滚：上传 <code>remote_station.py</code> 为 <code>main.py</code></li>
-</ul>
-<h2>踩坑记录（持续补充）</h2>
-<table>
-<thead>
-<tr>
-<th>日期</th>
-<th>现象</th>
-<th>原因</th>
-<th>教训</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>10-22</td>
-<td>CP2102 无 COM 口</td>
-<td>驱动未安装（错误码 28）</td>
-<td>Windows Update 自带官方驱动</td>
-</tr>
-<tr>
-<td>10-22</td>
-<td>Thonny 刷机"没反应"</td>
-<td>固件家族选错 + 未点安装</td>
-<td>家族必须选 ESP32（经典款）</td>
-</tr>
-<tr>
-<td>10-22</td>
-<td>REPL 连不上板子</td>
-<td>出厂固件不是 MicroPython</td>
-<td>先刷固件再连 REPL</td>
-</tr>
-<tr>
-<td>10-22</td>
-<td>数码管接上后无限重启</td>
-<td>段脚未限流，3.3V 被拉垮触发 Brownout</td>
-<td>GPIO 驱动 LED 必须串 220Ω+ 电阻</td>
-</tr>
-<tr>
-<td>10-26</td>
-<td>拔掉数码管后板子仍反复 Brownout：轻负载（下载模式/空片）正常，重负载（固件启动+WiFi）必崩</td>
-<td>短路冲击烧伤板载 3.3V 稳压器（LDO），供电能力永久衰退，板子判废</td>
-<td>短路不止"当时重启"，会造成<strong>永久硬件损伤</strong>；硬件诊断三板斧：①裸板测试 ②换线换口排除供电 ③空片启动对比轻重负载定位损伤</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>新板 ESP32-S3 刷官方固件无限重启：<code>bootloader_flash: XMC flash startup fail</code> → <code>failed when running XMC startup flow, reboot!</code></td>
-<td>IDF v5.5.2 只把 XMC 型号字节 0x40/0x41/0x50 当合法芯片；本板 Flash RDID 为 <code>20 70 18</code>（型号 0x70），复查误判失败</td>
-<td>补丁把 bootloader 该失败分支返回值改为 ESP_OK 并重算 checksum/SHA256（脚本 <code>firmware/patch_xmc_207018.py</code>，镜像 <code>...-xmc207018.bin</code>）；启动日志仍会打印该 E 行，属预期。教训：手改二进制务必核对字节序——昨晚把 <code>7C F2</code> 改成 <code>02 0C</code>（应为 <code>0C 02</code>），直接 IllegalInstruction</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>从下载模式回应用后，COM10 报"被其他程序占用"，重启 USB 设备也无效</td>
-<td>Windows 对已绑定 COM 号的 USB CDC 保留了旧句柄</td>
-<td>用 <code>pnputil /disable-device</code> + <code>/enable-device</code> 强制重新枚举（实例 ID 以设备管理器为准），端口会变号；仍不行再物理拔插</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>板子 <code>main.py</code> 自启后 USB 串口消失，设备管理器显示 <code>CM_PROB_DISABLED</code></td>
-<td>之前 <code>pnputil</code> 禁用/启用 USB 时只完成了禁用（shell 权限不足，enable 失败）</td>
-<td>管理员权限执行 <code>pnputil /enable-device &lt;实例ID&gt;</code>；本机 UAC 已关，可用 <code>Start-Process -Verb RunAs</code> 无提示提权。WiFi/MQTT 不受影响</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>网页 <code>fetch('/api/status')</code> 报 <code>ERR_CONNECTION_RESET</code>，curl 也 reset</td>
-<td>HTTP 处理只读了请求行，没读请求头；关闭连接时内核因未读数据发 RST</td>
-<td>响应前把请求头读到空行，再关闭连接</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>CSV 日志每次只剩一行，不累积</td>
-<td><code>ensure_log</code> 用完整路径 <code>/data/log.csv</code> 和 <code>os.listdir</code> 的 <code>log.csv</code> 比较，永不相等，每次用 <code>"w"</code> 重写</td>
-<td>用 <code>os.stat(LOG_PATH)</code> 判断文件是否存在</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>BLE GATT 连接后 WiFi/网页/MQTT 一起掉线</td>
-<td>ESP32-S3 MicroPython NimBLE 与 WiFi 共存 + 高负载；仅广播稳定，连接不稳</td>
-<td>BLE 默认关闭；需要时单独开启，不与 24/7 网页同时用</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>网页刷新偶尔断、等一会又恢复</td>
-<td>网页服务和 MQTT/网络阻塞在同一 asyncio 循环，被拖死</td>
-<td>网页与 MQTT 各自独立线程；前端 3 秒自动重试；Web 服务器不再受 MQTT 抖动影响</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>文档写"MQTT QoS1 + ping 自恢复"，但新旧两版代码（<code>remote_station.py</code> 与 <code>station/mqtt_link.py</code>）的 publish/subscribe 均未传 qos 参数，实际一直跑 QoS0，也没有 PINGREQ 探测</td>
-<td>umqtt.simple 默认 qos=0；v3/v4 演进中丢了设计参数或文档先行</td>
-<td>umqtt.simple 支持 qos=1 发布（阻塞等 PUBACK），给 STATUS/CMD 加上即同时获得送达保证与活性探测；未定案前文档按 QoS0 描述</td>
-</tr>
-</tbody>
-</table>
-<h2>学习日志（每次会话结束追加一行）</h2>
-<table>
-<thead>
-<tr>
-<th>日期</th>
-<th>本次内容</th>
-<th>产出</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>10-22 前后</td>
-<td>刷机三坑解决；第 1 课电子电路基础、第 2 课按键与中断完成讲授；网页控灯项目上线</td>
-<td><code>main.py</code>、踩坑记录 ×4</td>
-</tr>
-<tr>
-<td>10-26</td>
-<td>确认套件为进阶版 36 项并归档配件清单；建立课程管理 skill（规范/硬件/进度三合一）</td>
-<td><code>配件清单.md</code>、<code>.agents/skills/esp32-course/</code></td>
-</tr>
-<tr>
-<td>10-26</td>
-<td>建跨工具规范 AGENTS.md；git 仓库初始化并推送 GitHub（petri-ops/embedded-journey）；WiFi 凭据抽离+历史清洗后转公开；上线课程网站（GitHub Pages + Actions 自动发布）</td>
-<td>仓库公开、网站 https://petri-ops.github.io/embedded-journey/</td>
-</tr>
-<tr>
-<td>10-26</td>
-<td>备课完成：第 3~6 课讲义撰写上线，学习模式切换为网站自学 + 答疑/批改</td>
-<td>03/04/05/06 讲义 + 网站</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>换板 ESP32-S3（N16R8）；定位并修复 XMC Flash 启动误判；验收通过：REPL、16MB Flash（文件系统约 14MB）、8MB PSRAM、PWM(GPIO4)、ADC(GPIO1)、WiFi 扫描；硬件红线按 S3 引脚重写</td>
-<td><code>firmware/...-xmc207018.bin</code>、<code>firmware/patch_xmc_207018.py</code>、<code>hardware.md</code> 更新</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>按出厂资料校准板卡（WS2812=GPIO48、BOOT=GPIO0、CH343P）；清理试验固件；实操第一步：板载 RGB 点亮</td>
-<td><code>esp32/rgb_led.py</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>讲义全面适配 ESP32-S3：第 1-5 课引脚/代码、配件兼容矩阵、Wokwi 仿真说明；理论内容不变</td>
-<td>01-05 md/html、配件清单、wokwi/</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>远程 MQTT 监测站上线：内部温度/RSSI/uptime/heap + <code>on/off/pwm</code> 命令，asyncio 三任务；设为 <code>main.py</code> 开机自启；主题 <code>petri/lab-0172ea</code></td>
-<td><code>esp32/remote_station.py</code>、板子 <code>main.py</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>监测站 v1：接入 HTTPS 天气 API（open-meteo），状态含天气，新增 <code>weather</code> 命令；板端请求 200/JSON 验证通过</td>
-<td><code>esp32/remote_station.py</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>监测站 v2：网页仪表盘（http://192.168.0.100/）、BLE 外设 <code>ESP32-Lab</code>、NTP 时间、CSV 记录；修复 HTTP RST 与 CSV 重写两个 bug</td>
-<td><code>esp32/remote_station.py</code>、<code>.tmp_dashboard.png</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>天气源换国内：中国天气网镜像（免 key），城市改杭州 101210101；网页显示 19.4°C / 71% / 良</td>
-<td><code>esp32/remote_station.py</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>监测站 v3：板载感知（MCU 温度/WiFi 邻居/BLE 扫描/BOOT 键）、MQTT QoS1 + ping 自恢复、看门狗 120s、扫描降频；修复 QoS0 假活</td>
-<td><code>esp32/remote_station.py</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>网页加 MQTT 状态/主题卡、BOOT 键演示；MQTT 改独立线程避免拖死网页；确认 BLE GATT 连接会拖垮 WiFi，BLE 默认关闭</td>
-<td><code>esp32/remote_station.py</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>网页刷新断/等会恢复：网页服务与 MQTT/网络阻塞在同一 asyncio 循环；改为网页独立线程 + 前端 3 秒自动重试，65 秒稳定性验证通过</td>
-<td><code>esp32/remote_station.py</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>启用固件自带 mDNS：<strong>http://mpy-esp32s3.local/</strong> 可直接打开网页，无需固定 IP；PC 代理绕过加 <code>*.local</code></td>
-<td>—</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>网页卡片可点击看详情：天气明细、WiFi 邻居现场扫描 SSID/RSSI（仅本地展示）、BLE 状态；新增 <code>/api/wifi</code>、<code>/api/weather</code>、<code>/api/ble</code></td>
-<td><code>esp32/remote_station.py</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>门户 v4：core+features 框架（<code>station/</code>），六 feature（system/led/boot/network/weather/log），动态卡片/详情/动作，网页/MQTT 线程；已部署验收</td>
-<td><code>esp32/station/</code>、<code>station_main.py</code>、<code>station/README.md</code></td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>门户 UI 去冗余：刷新/扫描不再放卡片，点卡片自动执行并更新详情；LED 控制按钮保留</td>
-<td><code>esp32/station/web.py</code>、features</td>
-</tr>
-<tr>
-<td>10-27</td>
-<td>概念答疑：BLE 扫描、QoS1、产品形态与产品化路线；新增方向篇讲义，词汇表补 11 词条</td>
-<td><code>07-产品形态与产品化路线.md</code>、<code>词汇表.md</code></td>
-</tr>
-</tbody>
-</table>
+<p class="portal-sub">讲义自学 → 实操验证 → 交作业批改 → 归档自动更新；进度只记录在课程总览。</p>
+<section class="portal-section">
+<h2>课程篇</h2>
+<div class="portal-grid">
+<a class="portal-card" href="01-电子电路基础.html"><div class="t">第 1 课：电子电路基础</div><div class="d">欧姆定律、LED 限流、供电上限、Brownout 复盘、上拉电阻、分压器、数码管接线方案</div><span class="s ok">✅ 已完成讲授（待交作业）</span></a>
+<a class="portal-card" href="02-GPIO输入-按键与中断.html"><div class="t">第 2 课：GPIO 输入 —— 按键与中断</div><div class="d">轮询 vs 中断、消抖、IRQ_FALLING、ISR 三纪律、长按短按；项目：按键+网页双通道控灯</div><span class="s ok">✅ 已完成讲授（待实操）</span></a>
+<a class="portal-card" href="03-ADC与PWM进阶.html"><div class="t">第 3 课：ADC 与 PWM 进阶 —— 模拟量与执行器</div><div class="d">模拟量采集（摇杆/光敏/LM35）、滞回光控灯、舵机、蜂鸣器旋律、步进电机</div><span class="s">讲义已上线（待自学）</span></a>
+<a class="portal-card" href="04-通信协议-UART-I2C-SPI.html"><div class="t">第 4 课：通信协议 —— UART / I2C / SPI</div><div class="d">UART 回环、I2C 扫总线、OLED、SPI 彩屏、矩阵键盘；陌生模块四步法</div><span class="s">讲义已上线（待自学）</span></a>
+<a class="portal-card" href="05-MQTT与asyncio.html"><div class="t">第 5 课：MQTT 与 asyncio —— 跨上互联网</div><div class="d">发布/订阅、公共 broker 安全、并发三任务；项目：跨互联网环境监控</div><span class="s wip">🚧 远程实验 v2 已跑通（待自学）</span></a>
+<a class="portal-card" href="06-结业项目.html"><div class="t">第 6 课：结业项目 —— 四选一，独立交付</div><div class="d">门磁报警 / 气象站 / 红外云台 / 感应夜灯；阶段 0 毕业考试</div><span class="s">⬜ 四选一</span></a>
+</div>
+</section>
+<section class="portal-section">
+<h2>方向篇</h2>
+<div class="portal-grid">
+<a class="portal-card" href="07-产品形态与产品化路线.html"><div class="t">07 · 方向篇：产品形态与产品化路线</div><div class="d">从开发板到工业级产品：形态谱系与成长路线落点</div></a>
+</div>
+</section>
+<section class="portal-section">
+<h2>记录篇</h2>
+<div class="portal-grid">
+<a class="portal-card" href="成长档案.html"><div class="t">成长档案（跨会话长期记忆）</div><div class="d">概念追踪、提问日志、错题本、能力雷达——跨会话长期记忆</div></a>
+</div>
+</section>
+<section class="portal-section">
+<h2>工具箱</h2>
+<div class="portal-grid">
+<a class="portal-card" href="词汇表.html"><div class="t">词汇表（Glossary）</div><div class="d">中英对照领域术语速查，讲义术语可点击弹出解释</div></a>
+<a class="portal-card" href="配件清单.html"><div class="t">套件配件清单（进阶版套餐 · 共 36 项）</div><div class="d">进阶版套件 36 项清单与兼容矩阵</div></a>
+</div>
+</section>
 <div class="footer">— ESP32 + MicroPython 学习课程 —</div>
 </div></main>
 <script>
