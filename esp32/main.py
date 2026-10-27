@@ -1,5 +1,5 @@
 # main.py - ESP32 开机自动运行程序
-# 功能: 自动连接 WiFi -> 启动网页服务 -> 浏览器远程控制板载 LED
+# 功能: 自动连接 WiFi -> 启动网页服务 -> 浏览器远程控制外接 LED（GPIO4，串 220Ω）
 # 板子断电重启后此程序会自动执行, 无需电脑和 USB 线
 
 import network
@@ -14,7 +14,7 @@ try:
 except ImportError:
     SSID = PASSWORD = None  # 缺配置：跳过连路由器，直接开热点兜底
 
-LED = machine.Pin(2, machine.Pin.OUT)  # 板载 LED 在 GPIO2
+LED = machine.Pin(4, machine.Pin.OUT)  # 外接 LED 在 GPIO4（串 220Ω）；板载 WS2812 在 GPIO48 需 NeoPixel
 LED.value(0)
 
 PAGE = """HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n
