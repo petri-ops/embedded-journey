@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "author": "esp32-course",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-resistor", "id": "r1", "top": -40, "left": 160, "rotate": 90, "attrs": { "value": "220" } },
+    { "type": "wokwi-led", "id": "led1", "top": -120, "left": 160, "attrs": { "color": "red" } }
+  ],
+  "connections": [
+    ["esp:4", "r1:1", "green", []],
+    ["r1:2", "led1:A", "green", []],
+    ["led1:C", "esp:GND.1", "black", []]
+  ],
+  "dependencies": {}
+}

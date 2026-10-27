@@ -1,15 +1,17 @@
+# 数码管段码演示：a4 b5 c6 d7 e15 f16 g17 dp18，每段串 220Ω+（S3 安全脚）
+# 注意：本文件段码按共阳极编写；套件是共阴，0/1 需全部取反
 import machine
 import time
 
 
-a = machine.Pin(13, machine.Pin.OUT)
-b = machine.Pin(12, machine.Pin.OUT)
-c = machine.Pin(14, machine.Pin.OUT)
-d = machine.Pin(27, machine.Pin.OUT)
-e = machine.Pin(26, machine.Pin.OUT)
-f = machine.Pin(25, machine.Pin.OUT)
-g = machine.Pin(33, machine.Pin.OUT)
-dot = machine.Pin(32, machine.Pin.OUT)
+a = machine.Pin(4, machine.Pin.OUT)
+b = machine.Pin(5, machine.Pin.OUT)
+c = machine.Pin(6, machine.Pin.OUT)
+d = machine.Pin(7, machine.Pin.OUT)
+e = machine.Pin(15, machine.Pin.OUT)
+f = machine.Pin(16, machine.Pin.OUT)
+g = machine.Pin(17, machine.Pin.OUT)
+dot = machine.Pin(18, machine.Pin.OUT)
 
 number_led = [a, b, c, d, e, f, g, dot]
 

@@ -1,11 +1,12 @@
+# 外接 LED 闪烁：GPIO4 ── 220Ω ── LED ── GND（S3 安全脚）
 import machine
 import time
 
 
-pin2 = machine.Pin(2, machine.Pin.OUT)
+pin4 = machine.Pin(4, machine.Pin.OUT)
 
 while True:
-    pin2.value(1)
+    pin4.value(1)
     time.sleep(1)
-    pin2.value(0)
+    pin4.value(0)
     time.sleep(1)
