@@ -2,6 +2,7 @@
 
 > 目标：理解三种芯片间"对话"协议的原理与分工，能把 OLED、彩屏、矩阵键盘接上跑通，掌握"拿到任何陌生模块都能接"的方法论。
 > 实验硬件：OLED 0.96"（SSD1306）、240×240 彩屏（ST7789）、矩阵键盘 4×4、一根杜邦线（UART 回环实验）。
+> 换板说明（S3）：本课引脚已重映射——I2C SDA8/SCL9、SPI SCK12/MOSI11/CS5/DC2/RST4、键盘行 13/14/15/16 列 17/18/21/38；GPIO22-25 在 S3 上不存在，26-37 被 Flash/PSRAM 占用。
 
 ---
 
@@ -38,7 +39,7 @@ data = uart.read(128)             # 从 RX 收回来（自己发给自己的）
 print("收到:", data)
 ```
 
-> 回顾红线：GPIO1/3 是 UART0，被 REPL/刷机占用，所以实验用 UART2（任意空闲 GPIO 都能当 TX2/RX2）。
+> 回顾红线（S3）：UART0 是 **GPIO43/44**（被 REPL/刷机占用）；GPIO1/3 现在是普通 ADC 脚，不再是串口。实验用 UART2（GPIO17/16，任意空闲 GPIO 都能当 TX2/RX2）。
 > UART 的典型实战：GPS 模块、另一个单片机、串口屏——都是"整条线路只有你我"的场景。
 
 ---
@@ -67,7 +68,7 @@ ESP32(主机)
 ```python
 from machine import Pin, SoftI2C
 
-i2c = SoftI2C(sda=Pin(21), scl=Pin(22), freq=400000)
+i2c = SoftI2C(sda=Pin(8), scl=Pin(9), freq=400000)
 print("总线上的设备地址:", [hex(a) for a in i2c.scan()])
 ```
 
@@ -84,17 +85,17 @@ import mip
 mip.install("ssd1306")
 ```
 
-**接线**：OLED 的 VCC→3V3，GND→GND，SCL→GPIO22，SDA→GPIO21（正好是 scan 用的两根）。
+**接线**：OLED 的 VCC→3V3，GND→GND，SCL→GPIO9，SDA→GPIO8（S3 安全脚，正好是 scan 用的两根）。
 
 ```python
 from machine import Pin, SoftI2C, ADC
 from ssd1306 import SSD1306_I2C
 import time
 
-i2c = SoftI2C(sda=Pin(21), scl=Pin(22))
+i2c = SoftI2C(sda=Pin(8), scl=Pin(9))
 oled = SSD1306_I2C(128, 64, i2c)        # 128×64 像素
 
-light = ADC(Pin(34)); light.atten(ADC.ATTN_11DB)
+light = ADC(Pin(1)); light.atten(ADC.ATTN_11DB)
 
 while True:
     oled.fill(0)                        # 清屏
@@ -116,12 +117,12 @@ SPI 用**更多线换更快速度**：时钟线 SCK 打拍，MOSI 主出从入�
 
 **ST7789 彩屏接线**：
 
-| 屏引脚 | ESP32 | 说明 |
+| 屏引脚 | ESP32-S3 | 说明 |
 |---|---|---|
 | VCC | 3V3 | |
 | GND | GND | |
-| SCL | GPIO18 | SPI 时钟 |
-| SDA | GPIO23 | SPI 数据（MOSI） |
+| SCL | GPIO12 | SPI 时钟 |
+| SDA | GPIO11 | SPI 数据（MOSI） |
 | RES | GPIO4 | 复位 |
 | DC | GPIO2 | 数据/命令选择 |
 | CS | GPIO5 | 片选 |
@@ -133,7 +134,7 @@ SPI 用**更多线换更快速度**：时钟线 SCK 打拍，MOSI 主出从入�
 from machine import Pin, SPI
 import st7789py as st7789
 
-spi = SPI(2, baudrate=40000000, polarity=1, sck=Pin(18), mosi=Pin(23))
+spi = SPI(2, baudrate=40000000, polarity=1, sck=Pin(12), mosi=Pin(11))
 lcd = st7789.ST7789(spi, 240, 240, cs=Pin(5), dc=Pin(2), rst=Pin(4))
 
 lcd.fill(st7789.color565(90, 125, 238))          # 蓝色洗屏
@@ -152,8 +153,8 @@ lcd.text("Hello, Product World!", 20, 110, st7789.color565(255, 255, 255))
 from machine import Pin
 import time
 
-ROWS = [Pin(p, Pin.OUT) for p in (13, 14, 27, 26)]   # 行：输出
-COLS = [Pin(p, Pin.IN, Pin.PULL_UP) for p in (25, 33, 32, 4)]  # 列：输入上拉
+ROWS = [Pin(p, Pin.OUT) for p in (13, 14, 15, 16)]   # 行：输出
+COLS = [Pin(p, Pin.IN, Pin.PULL_UP) for p in (17, 18, 21, 38)]  # 列：输入上拉
 
 KEYS = [["1","2","3","A"],
         ["4","5","6","B"],

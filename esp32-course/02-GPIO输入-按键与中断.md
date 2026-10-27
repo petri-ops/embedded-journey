@@ -1,7 +1,8 @@
 # 第 2 课：GPIO 输入 —— 按键与中断
 
 > 目标：掌握输入读取、按键[消抖](词汇表.md#debounce)、[轮询](词汇表.md#polling)与[中断](词汇表.md#interrupt)两种范式，理解 [ISR](词汇表.md#isr)（中断服务函数）的纪律。
-> 实验硬件：板载 BOOT 键（GPIO0）+ 板载 LED（GPIO2），**零接线**即可完成全部实验。
+> 实验硬件：板载 BOOT 键（GPIO0）+ 外接 LED（GPIO4，串 220Ω 到 GND），**只需接一个 LED**。板载 WS2812（GPIO48）也能用，但要用 `neopixel` 驱动，见文末注。
+> 换板说明：本课引脚已按 ESP32-S3 改过；旧板的"板载 LED=GPIO2"在这块板上不适用。
 
 ---
 
@@ -21,7 +22,7 @@
 ```python
 import machine, time
 
-led = machine.Pin(2, machine.Pin.OUT)
+led = machine.Pin(4, machine.Pin.OUT)
 btn = machine.Pin(0, machine.Pin.IN, machine.Pin.PULL_UP)  # BOOT 键，启用内部上拉
 
 while True:
@@ -93,7 +94,7 @@ while True:
 ```python
 import machine, time
 
-led = machine.Pin(2, machine.Pin.OUT)
+led = machine.Pin(4, machine.Pin.OUT)
 btn = machine.Pin(0, machine.Pin.IN, machine.Pin.PULL_UP)
 
 last_press = 0
@@ -154,11 +155,11 @@ else:
 
 ## 6. 实战项目：按键 + 网页 双通道控制同一盏灯（板子回来后做）
 
-把中断加进 `main.py`，让**物理按键和网页按钮同时控制板载 LED**：
+把中断加进 `main.py`，让**物理按键和网页按钮同时控制外接 LED（GPIO4）**：
 
 ```python
 # 在 main.py 的 connect_wifi() 之前加入：
-led = machine.Pin(2, machine.Pin.OUT)
+led = machine.Pin(4, machine.Pin.OUT)
 btn = machine.Pin(0, machine.Pin.IN, machine.Pin.PULL_UP)
 last_press = 0
 
@@ -176,6 +177,9 @@ btn.irq(trigger=machine.Pin.IRQ_FALLING, handler=on_press)
 
 **验收标准**：网页开着不动，按 BOOT 键 → LED 立刻翻转；刷新网页 → 显示的"当前状态"也跟着变了。
 两条控制通道共存，这就是中断的价值。
+
+> **注：想用板载 WS2812（GPIO48）代替外接 LED？**
+> 它要用 `from neopixel import NeoPixel` 驱动，而且 WS2812 写入较慢、会分配对象，**不能放进 ISR**。正确做法：ISR 只翻一个全局标志，主循环检测到变化再 `np.write()`。本课示例为了聚焦中断，使用外接 LED（GPIO4）。
 
 ---
 

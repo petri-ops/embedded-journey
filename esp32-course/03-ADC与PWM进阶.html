@@ -142,6 +142,7 @@
     <a href="04-通信协议-UART-I2C-SPI.html">第 4 课：通信协议 —— UART / I2C / SPI</a>
     <a href="05-MQTT与asyncio.html">第 5 课：MQTT 与 asyncio —— 跨上互联网</a>
     <a href="06-结业项目.html">第 6 课：结业项目 —— 四选一，独立交付</a>
+    <a href="07-产品形态与产品化路线.html">07 · 方向篇：产品形态与产品化路线</a>
     <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
     <a href="词汇表.html">词汇表（Glossary）</a>
     <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
@@ -153,7 +154,7 @@
 <blockquote>
 <p>目标：掌握 <span class="gloss" data-term="adc">ADC</span> 模拟量采集（摇杆/光敏/温度），学会用 <span class="gloss" data-term="pwm">PWM</span> 驱动<span class="gloss" data-term="servo">舵机</span>、<span class="gloss" data-term="buzzer">蜂鸣器</span>、<span class="gloss" data-term="stepper-motor">步进电机</span>，做出"感知→决策→动作"的完整闭环。
 实验硬件：双轴摇杆、光敏模块、LM35 温度、MG90S 舵机、无源蜂鸣器、步进电机+ULN2003 驱动板。
-接线红线：模拟量只能接 <strong>ADC1 引脚（GPIO32~39）</strong>——ADC2 开 WiFi 后读不了（第 1 课红线表）；GPIO34~39 只能输入，接传感器输出脚没问题。</p>
+接线红线（S3）：模拟量只能接 <strong>ADC1 引脚（GPIO1~10）</strong>——ADC2（GPIO11~20）开 WiFi 后读不了；S3 没有"只能输入"的 GPIO；避开 GPIO26~37（Flash/PSRAM）与 GPIO19/20（USB）。本课引脚已按 S3 重映射，旧板的 GPIO32~39 方案不再适用。</p>
 </blockquote>
 <hr />
 <h2>0. 从"开/关"到"多少"：模拟世界</h2>
@@ -167,7 +168,7 @@
 <p>第 1 课埋的伏笔在这里回收：光敏、LM35、摇杆本质全是<strong>分压器</strong>——物理量变化 → 电阻变化 → 电压变化 → ADC 读数变化。</p>
 <pre><code class="language-python">from machine import ADC, Pin
 
-adc = ADC(Pin(34))            # 光敏 AO 接 GPIO34
+adc = ADC(Pin(1))             # 光敏 AO 接 GPIO1（ADC1）
 adc.atten(ADC.ATTN_11DB)      # 量程设为约 0~3.3V（11dB 衰减）
 
 raw = adc.read()              # 0 ~ 4095
@@ -183,14 +184,14 @@ print(&quot;原始值:&quot;, raw, &quot; 电压:&quot;, volts, &quot;V&quot;)
 <tr>
 <th>器件</th>
 <th>模块引脚</th>
-<th>ESP32 引脚</th>
+<th>ESP32-S3 引脚</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>光敏（4针）</td>
 <td>AO</td>
-<td>GPIO34</td>
+<td>GPIO1（ADC1）</td>
 </tr>
 <tr>
 <td>光敏（4针）</td>
@@ -200,26 +201,26 @@ print(&quot;原始值:&quot;, raw, &quot; 电压:&quot;, volts, &quot;V&quot;)
 <tr>
 <td>摇杆</td>
 <td>VRx</td>
-<td>GPIO32</td>
+<td>GPIO2（ADC1）</td>
 </tr>
 <tr>
 <td>摇杆</td>
 <td>VRy</td>
-<td>GPIO33</td>
+<td>GPIO4（ADC1）</td>
 </tr>
 <tr>
 <td>摇杆</td>
 <td>SW</td>
-<td>GPIO27（数字脚，内部上拉）</td>
+<td>GPIO5（数字脚，内部上拉）</td>
 </tr>
 </tbody>
 </table>
 <pre><code class="language-python">import machine, time
 
-light = machine.ADC(machine.Pin(34)); light.atten(machine.ADC.ATTN_11DB)
-x = machine.ADC(machine.Pin(32));     x.atten(machine.ADC.ATTN_11DB)
-y = machine.ADC(machine.Pin(33));     y.atten(machine.ADC.ATTN_11DB)
-sw = machine.Pin(27, machine.Pin.IN, machine.Pin.PULL_UP)
+light = machine.ADC(machine.Pin(1)); light.atten(machine.ADC.ATTN_11DB)
+x = machine.ADC(machine.Pin(2));     x.atten(machine.ADC.ATTN_11DB)
+y = machine.ADC(machine.Pin(4));     y.atten(machine.ADC.ATTN_11DB)
+sw = machine.Pin(5, machine.Pin.IN, machine.Pin.PULL_UP)
 
 while True:
     print(&quot;光: %4d  X: %4d  Y: %4d  按键: %d&quot;
@@ -232,7 +233,7 @@ while True:
 3. 摇杆按下是 0——又见"低电平有效"（第 2 课内部上拉同款电路）</p>
 <h3>LM35 温度（顺手一起接上）</h3>
 <p>LM35 输出电压 = 温度 × 10mV/°C（25°C 时输出 0.25V）：</p>
-<pre><code class="language-python">t = machine.ADC(machine.Pin(35)); t.atten(machine.ADC.ATTN_11DB)
+<pre><code class="language-python">t = machine.ADC(machine.Pin(6)); t.atten(machine.ADC.ATTN_11DB)
 
 temp_mv = t.read() / 4095 * 3300      # 换算成毫伏
 print(&quot;温度约:&quot;, temp_mv / 10, &quot;°C&quot;)
@@ -293,12 +294,12 @@ elif light.read() &lt; 1800:    # 相当亮才关
 高电平 0.5ms → 0°      高电平 1.5ms → 90°      高电平 2.5ms → 180°
 </code></pre>
 <p>换算成 duty（10 位，1023 ≈ 20ms）：0.5ms ≈ <strong>26</strong>，2.5ms ≈ <strong>128</strong>。</p>
-<p><strong>接线</strong>：舵机棕线→GND，红线→<strong>VIN（5V）</strong>，橙线（信号）→GPIO26。
+<p><strong>接线</strong>：舵机棕线→GND，红线→<strong>VIN（5V）</strong>，橙线（信号）→GPIO8。
 （信号 3.3V 足够；电源必须 5V——舵机是要干活的，功率走 VIN，GPIO 只出信号。第 1 课红线又回扣了。）</p>
 <pre><code class="language-python">from machine import Pin, PWM
 import time
 
-servo = PWM(Pin(26), freq=50)
+servo = PWM(Pin(8), freq=50)
 
 def set_angle(angle):                     # angle: 0~180
     duty = 26 + int(angle / 180 * 102)    # 0°→26, 180°→128
@@ -312,7 +313,7 @@ while True:
 </code></pre>
 <h3>3.2 <span class="gloss" data-term="buzzer-passive">无源蜂鸣器</span>（Passive Buzzer）：PWM 的"频率语言"</h3>
 <p>无源蜂鸣器像个小喇叭——你给什么频率它发什么音。<strong>频率=音高，duty=音量开关</strong>：</p>
-<pre><code class="language-python">buzzer = PWM(Pin(25), freq=523, duty=0)   # duty=0 静音
+<pre><code class="language-python">buzzer = PWM(Pin(9), freq=523, duty=0)    # duty=0 静音
 
 def tone(freq, ms):
     buzzer.freq(freq)
@@ -332,11 +333,11 @@ for n, b in zip(melody, beat):
 </code></pre>
 <p>（有源蜂鸣器则相反：通电就响固定音，duty 数字脚当开关用，做报警器更省事。）</p>
 <h3>3.3 <span class="gloss" data-term="stepper-motor">步进电机</span>（Stepper Motor）28BYJ-48：不听 PWM，听"节拍"</h3>
-<p>步进电机靠 4 组线圈按顺序通电，一步一步精确走。<span class="gloss" data-term="uln2003">ULN2003 驱动板</span>接 GPIO16/17/18/19，红线→<strong>VIN(5V)</strong>：</p>
+<p>步进电机靠 4 组线圈按顺序通电，一步一步精确走。<span class="gloss" data-term="uln2003">ULN2003 驱动板</span>接 GPIO10/11/12/13，红线→<strong>VIN(5V)</strong>：</p>
 <pre><code class="language-python">from machine import Pin
 import time
 
-IN1, IN2, IN3, IN4 = Pin(16, Pin.OUT), Pin(17, Pin.OUT), Pin(18, Pin.OUT), Pin(19, Pin.OUT)
+IN1, IN2, IN3, IN4 = Pin(10, Pin.OUT), Pin(11, Pin.OUT), Pin(12, Pin.OUT), Pin(13, Pin.OUT)
 COILS = (IN1, IN2, IN3, IN4)
 
 # 半步序列：相邻两相交替通电，转得更顺
@@ -364,11 +365,11 @@ step(-0)           # 反转让序列倒着放即可：for s in reversed(SEQ)
 <pre><code class="language-python">from machine import Pin, PWM, ADC
 import time
 
-servo  = PWM(Pin(26), freq=50)
-buzzer = PWM(Pin(25), freq=880, duty=0)
-x      = ADC(Pin(32)); x.atten(ADC.ATTN_11DB)
-light  = ADC(Pin(34)); light.atten(ADC.ATTN_11DB)
-sw     = Pin(27, Pin.IN, Pin.PULL_UP)
+servo  = PWM(Pin(8), freq=50)
+buzzer = PWM(Pin(9), freq=880, duty=0)
+x      = ADC(Pin(2)); x.atten(ADC.ATTN_11DB)
+light  = ADC(Pin(1)); light.atten(ADC.ATTN_11DB)
+sw     = Pin(5, Pin.IN, Pin.PULL_UP)
 
 while True:
     angle = (x.read() / 4095) * 180           # 摇杆值 → 0~180°
@@ -406,7 +407,7 @@ while True:
 </div></main>
 <script>
 (function () {
-  var G = {"voltage": {"t": "电压（Voltage, U）", "d": "电的\"推力\"，好比水塔的高度，单位伏特（V）。"}, "current": {"t": "电流（Current, I）", "d": "流动的电量，好比水流量，单位安培（A），板上常用毫安（mA）。"}, "resistance": {"t": "电阻（Resistance, R）", "d": "对电流的阻碍，好比水管的粗细，单位欧姆（Ω）。"}, "ohms-law": {"t": "欧姆定律（Ohm's Law）", "d": "三者的关系式 U = I × R，所有电路计算的地基。"}, "led": {"t": "LED（Light-Emitting Diode）发光二极管", "d": "通电就亮的元件，但自己\"不会节制\"，必须串限流电阻。"}, "current-limiting": {"t": "限流电阻（Current-Limiting Resistor）", "d": "串在 LED 回路里\"限量供电\"的电阻，取值算法见第 1 课：R =（电源电压 − Vf）/ 目标电流。"}, "forward-voltage": {"t": "导通压降（Forward Voltage, Vf）", "d": "LED 点亮后\"固定吃掉\"的那部分电压（红光约 2.0V），剩下的电压才轮到电阻去分。"}, "pull-up": {"t": "上拉电阻（Pull-up Resistor）", "d": "给输入引脚一个默认高电平的电阻，防止没人按就乱报信号；下拉（pull-down）同理给低电平。"}, "floating": {"t": "悬空（Floating）", "d": "输入脚什么都不接的状态，像天线一样收集干扰，读数乱跳。"}, "voltage-divider": {"t": "分压器（Voltage Divider）", "d": "两个电阻串联、中间取电压：Vout = Vin × R2/(R1+R2)。电位器、光敏、热敏本质都是它。"}, "potentiometer": {"t": "电位器（Potentiometer）", "d": "旋钮式可调电阻，本质是\"手动调节的分压器\"。"}, "brownout": {"t": "Brownout（欠压复位）", "d": "电压被拉垮时芯片主动重启保命的保护机制；排查思路是找出\"谁在偷吃电流\"。"}, "power": {"t": "功率（Power, P = U×I）", "d": "电阻发热的速率，超了会烧黑冒烟。"}, "gpio": {"t": "GPIO（General Purpose Input/Output）通用输入输出", "d": "芯片上可由程序控制的引脚：能输出高/低电平，也能读取外部电平。"}, "pwm": {"t": "PWM（Pulse Width Modulation）脉宽调制", "d": "用极快的开关方波\"伪造\"中间电压：开的时间占比越大，等效电压越高。LED 调光、舵机、调速全靠它。"}, "duty-cycle": {"t": "占空比（Duty Cycle）", "d": "一个周期里高电平的占比，PWM 的\"油门\"。"}, "pulse-width": {"t": "脉宽（Pulse Width）", "d": "高电平持续的绝对时间。舵机读的是它：0.5ms→0°，2.5ms→180°。"}, "adc": {"t": "ADC（Analog-to-Digital Converter）模数转换器", "d": "把连续电压翻译成数字读数（ESP32 是 12 位：0~4095），\"多少伏\"从此变成\"多少格\"。"}, "hysteresis": {"t": "滞回（Hysteresis）", "d": "开和关用两个不同阈值、中间留缓冲带，专治\"临界值附近疯狂抖动\"。空调温控同款思想。"}, "polling": {"t": "轮询（Polling）", "d": "主循环里反复问\"好了吗？好了吗？\"的编程方式，简单但占 CPU、容易漏。"}, "interrupt": {"t": "中断（Interrupt）", "d": "提前向硬件登记\"信号一变就喊我\"，CPU 平时干别的，事件来了立刻响应。"}, "isr": {"t": "ISR（Interrupt Service Routine）中断服务函数", "d": "中断触发时执行的那个函数；纪律：短、快、不分配内存、不 print。"}, "debounce": {"t": "消抖（Debounce）", "d": "机械触点按下时会弹跳几毫秒，用\"延时确认\"或\"时间节流\"过滤假信号。"}, "active-low": {"t": "低电平有效（Active-Low）", "d": "\"触发 = 变成低电平 0\"的信号约定。上拉+按键接地天然如此，共阳数码管低电平点亮同理。"}, "strapping-pin": {"t": "Strapping Pin 启动配置引脚", "d": "开机瞬间被芯片采样、决定启动方式的引脚（GPIO0/2/12/15），外接电路不能把它们拉错电平。"}, "watchdog": {"t": "看门狗（Watchdog）", "d": "\"你不定期喂我，我就重启系统\"的定时器，专防程序卡死，工业产品必备。"}, "seven-segment": {"t": "数码管（Seven-Segment Display）", "d": "7 段 LED 排成\"8\"字显示数字，段码决定亮哪几笔。"}, "common-cathode": {"t": "共阴 / 共阳（Common Cathode / Anode）", "d": "数码管公共脚接 GND（共阴，高电平点亮）还是 VCC（共阳，低电平点亮）。买错型号段码全反。"}, "servo": {"t": "舵机（Servo / RC Servo）", "d": "自带减速齿轮和角度反馈的小电机：PWM 脉宽决定转到几度，指哪打哪。云台、机械臂、遥控舵面都用它。"}, "stepper-motor": {"t": "步进电机（Stepper Motor）", "d": "靠多组线圈按节拍轮流通电、一步一步精确转动的电机；角度可控、断电能保持位置，代价是慢、费电。"}, "uln2003": {"t": "ULN2003 驱动板", "d": "步进电机的\"翻译官 + 功率放大器\"：GPIO 信号太弱带不动线圈，由它放大后驱动。"}, "buzzer": {"t": "蜂鸣器（Buzzer）", "d": "发声元件，分有源/无源两种（见下）。"}, "buzzer-active": {"t": "有源蜂鸣器（Active Buzzer）", "d": "内置振荡源，通电就响固定音调，当电子开关用，适合报警。"}, "buzzer-passive": {"t": "无源蜂鸣器（Passive Buzzer）", "d": "就是个小喇叭，给什么频率唱什么音，能演奏旋律。"}, "relay": {"t": "继电器（Relay）", "d": "用小电流吸合开关去控制大电流的\"电磁开关\"，可控制 220V 家电（强电，务必注意安全）。"}, "ldr": {"t": "光敏电阻（Photoresistor / LDR）", "d": "光照越强电阻越小的元件，配个电阻就是光强传感器。"}, "thermistor": {"t": "热敏电阻（Thermistor）", "d": "温度改变电阻的元件。"}, "lm35": {"t": "LM35", "d": "模拟温度传感器，输出电压 = 温度 × 10mV/°C，ADC 一读一换算就是温度。"}, "joystick": {"t": "摇杆（Joystick）", "d": "两个电位器（X/Y 轴）加一个按压开关，游戏手柄同款。"}, "keypad": {"t": "矩阵键盘（Matrix Keypad）", "d": "4×4 按键排成行列交叉阵，逐行扫描定位按键，16 个键只占 8 个引脚。"}, "oled": {"t": "OLED", "d": "自发光小屏幕，I2C 接口居多（SSD1306 驱动芯片），显示文字图形。"}, "lcd": {"t": "LCD1602", "d": "能显示两行字符的老牌液晶屏。"}, "tft": {"t": "TFT 彩屏", "d": "彩色液晶屏，SPI 接口（常见 ST7789 驱动），能画图显示图片。"}, "reed-switch": {"t": "干簧管（Reed Switch）", "d": "磁铁靠近触点就导通的开关，门磁报警器的核心。"}, "hall": {"t": "霍尔传感器（Hall Sensor）", "d": "感应磁场的元件，ESP32 芯片里就内置了一个。"}, "pir": {"t": "PIR（Passive Infrared）人体红外", "d": "探测\"移动热源发出的红外线\"（人体、宠物），感应夜灯和安防的核心。"}, "ultrasonic": {"t": "超声波测距（Ultrasonic, HC-SR04）", "d": "发声波、收回波，按时间差算距离，蝙蝠同款原理。"}, "uart": {"t": "UART（Universal Asynchronous Receiver/Transmitter）", "d": "两根线（TX/RX）点对点串行通信，最早的\"串口\"；电脑看 print 就走它。"}, "baud-rate": {"t": "波特率（Baud Rate）", "d": "每秒传多少位，通信双方必须一致，否则收到乱码。"}, "i2c": {"t": "I2C（Inter-Integrated Circuit）", "d": "两根线（SDA 数据 + SCL 时钟）挂一串器件的总线，靠地址点名说话。"}, "sda-scl": {"t": "SDA / SCL", "d": "I2C 的数据线 / 时钟线。"}, "spi": {"t": "SPI（Serial Peripheral Interface）", "d": "四根线的高速总线，彩屏、SD 卡走的高速路。"}, "mosi-miso": {"t": "MOSI / MISO", "d": "SPI 数据线：主出从入（Master Out Slave In）/ 主入从出（Master In Slave Out）。"}, "chip-select": {"t": "CS（Chip Select）片选", "d": "SPI 的\"点名线\"，拉低哪根就选中哪个器件说话。"}, "bus": {"t": "总线（Bus）", "d": "多个器件共享的一组通信线，配合协议协调\"谁在说话\"。"}, "protocol": {"t": "协议（Protocol）", "d": "通信双方事先约定的规则：什么格式、什么节奏、谁先说。协议不通，硬件再好也白搭。"}, "master-slave": {"t": "主机 / 从机（Master / Slave）", "d": "总线上发起通信的一方 / 被动应答的一方。ESP32 通常当主机。"}, "mqtt": {"t": "MQTT", "d": "物联网标准消息协议，发布/订阅模式，轻量到单片机都能跑。"}, "broker": {"t": "Broker（消息代理）", "d": "MQTT 的中转\"邮局\"：发布者和订阅者都只跟它说话，互相不用认识。"}, "topic": {"t": "Topic（主题）", "d": "消息的分类路径，如 `petri/home/light`，斜线分层像网址。"}, "qos": {"t": "QoS（Quality of Service）服务质量", "d": "MQTT 的送达保证等级：0 尽力送（可能丢）、1 至少一次（可能重）、2 恰好一次。"}, "asyncio": {"t": "asyncio", "d": "Python 的异步并发库：多个任务写成多个函数，谁在等待（sleep/网络）谁就让出 CPU，实现\"同时\"干活。"}, "firmware": {"t": "固件（Firmware）", "d": "烧进芯片的\"系统 + 驱动 + 运行环境\"合体；嵌入式世界的\"装系统\"就是刷固件。"}, "rtos": {"t": "RTOS（Real-Time Operating System）实时操作系统", "d": "管理多任务、保证关键代码在确定时间内执行的轻量系统，无界面。"}, "freertos": {"t": "FreeRTOS", "d": "免费开源的 RTOS，ESP32 固件底层跑的就是它；MicroPython 只是它的一个任务。"}, "micropython": {"t": "MicroPython", "d": "能跑在单片机上的精简 Python，让你用 Python 语法控制硬件。"}, "repl": {"t": "REPL（Read-Eval-Print Loop）", "d": "交互式解释器：敲一行执行一行，Thonny 底部那个窗口就是。"}, "flash": {"t": "Flash（闪存）", "d": "板上断电不丢的存储（本板 4MB），你的 .py 文件就住在里面。"}, "cp2102": {"t": "CP2102", "d": "板上的 USB 转串口芯片，电脑和 ESP32 对话的翻译官。"}, "esptool": {"t": "esptool / mpremote", "d": "乐鑫官方命令行工具：esptool 烧固件，mpremote 传文件、跑脚本。"}};
+  var G = {"voltage": {"t": "电压（Voltage, U）", "d": "电的\"推力\"，好比水塔的高度，单位伏特（V）。"}, "current": {"t": "电流（Current, I）", "d": "流动的电量，好比水流量，单位安培（A），板上常用毫安（mA）。"}, "resistance": {"t": "电阻（Resistance, R）", "d": "对电流的阻碍，好比水管的粗细，单位欧姆（Ω）。"}, "ohms-law": {"t": "欧姆定律（Ohm's Law）", "d": "三者的关系式 U = I × R，所有电路计算的地基。"}, "led": {"t": "LED（Light-Emitting Diode）发光二极管", "d": "通电就亮的元件，但自己\"不会节制\"，必须串限流电阻。"}, "current-limiting": {"t": "限流电阻（Current-Limiting Resistor）", "d": "串在 LED 回路里\"限量供电\"的电阻，取值算法见第 1 课：R =（电源电压 − Vf）/ 目标电流。"}, "forward-voltage": {"t": "导通压降（Forward Voltage, Vf）", "d": "LED 点亮后\"固定吃掉\"的那部分电压（红光约 2.0V），剩下的电压才轮到电阻去分。"}, "pull-up": {"t": "上拉电阻（Pull-up Resistor）", "d": "给输入引脚一个默认高电平的电阻，防止没人按就乱报信号；下拉（pull-down）同理给低电平。"}, "floating": {"t": "悬空（Floating）", "d": "输入脚什么都不接的状态，像天线一样收集干扰，读数乱跳。"}, "voltage-divider": {"t": "分压器（Voltage Divider）", "d": "两个电阻串联、中间取电压：Vout = Vin × R2/(R1+R2)。电位器、光敏、热敏本质都是它。"}, "potentiometer": {"t": "电位器（Potentiometer）", "d": "旋钮式可调电阻，本质是\"手动调节的分压器\"。"}, "brownout": {"t": "Brownout（欠压复位）", "d": "电压被拉垮时芯片主动重启保命的保护机制；排查思路是找出\"谁在偷吃电流\"。"}, "power": {"t": "功率（Power, P = U×I）", "d": "电阻发热的速率，超了会烧黑冒烟。"}, "emc": {"t": "EMC（Electromagnetic Compatibility）电磁兼容", "d": "设备既不干扰别人、也不被别人干扰的能力；工业产品必须过认证测试，是\"能自己用\"和\"能卖出去\"的分水岭之一。"}, "gpio": {"t": "GPIO（General Purpose Input/Output）通用输入输出", "d": "芯片上可由程序控制的引脚：能输出高/低电平，也能读取外部电平。"}, "pwm": {"t": "PWM（Pulse Width Modulation）脉宽调制", "d": "用极快的开关方波\"伪造\"中间电压：开的时间占比越大，等效电压越高。LED 调光、舵机、调速全靠它。"}, "duty-cycle": {"t": "占空比（Duty Cycle）", "d": "一个周期里高电平的占比，PWM 的\"油门\"。"}, "pulse-width": {"t": "脉宽（Pulse Width）", "d": "高电平持续的绝对时间。舵机读的是它：0.5ms→0°，2.5ms→180°。"}, "adc": {"t": "ADC（Analog-to-Digital Converter）模数转换器", "d": "把连续电压翻译成数字读数（ESP32 是 12 位：0~4095），\"多少伏\"从此变成\"多少格\"。"}, "hysteresis": {"t": "滞回（Hysteresis）", "d": "开和关用两个不同阈值、中间留缓冲带，专治\"临界值附近疯狂抖动\"。空调温控同款思想。"}, "polling": {"t": "轮询（Polling）", "d": "主循环里反复问\"好了吗？好了吗？\"的编程方式，简单但占 CPU、容易漏。"}, "interrupt": {"t": "中断（Interrupt）", "d": "提前向硬件登记\"信号一变就喊我\"，CPU 平时干别的，事件来了立刻响应。"}, "isr": {"t": "ISR（Interrupt Service Routine）中断服务函数", "d": "中断触发时执行的那个函数；纪律：短、快、不分配内存、不 print。"}, "debounce": {"t": "消抖（Debounce）", "d": "机械触点按下时会弹跳几毫秒，用\"延时确认\"或\"时间节流\"过滤假信号。"}, "active-low": {"t": "低电平有效（Active-Low）", "d": "\"触发 = 变成低电平 0\"的信号约定。上拉+按键接地天然如此，共阳数码管低电平点亮同理。"}, "strapping-pin": {"t": "Strapping Pin 启动配置引脚", "d": "开机瞬间被芯片采样、决定启动方式的引脚（GPIO0/2/12/15），外接电路不能把它们拉错电平。"}, "watchdog": {"t": "看门狗（Watchdog）", "d": "\"你不定期喂我，我就重启系统\"的定时器，专防程序卡死，工业产品必备。"}, "seven-segment": {"t": "数码管（Seven-Segment Display）", "d": "7 段 LED 排成\"8\"字显示数字，段码决定亮哪几笔。"}, "common-cathode": {"t": "共阴 / 共阳（Common Cathode / Anode）", "d": "数码管公共脚接 GND（共阴，高电平点亮）还是 VCC（共阳，低电平点亮）。买错型号段码全反。"}, "servo": {"t": "舵机（Servo / RC Servo）", "d": "自带减速齿轮和角度反馈的小电机：PWM 脉宽决定转到几度，指哪打哪。云台、机械臂、遥控舵面都用它。"}, "stepper-motor": {"t": "步进电机（Stepper Motor）", "d": "靠多组线圈按节拍轮流通电、一步一步精确转动的电机；角度可控、断电能保持位置，代价是慢、费电。"}, "uln2003": {"t": "ULN2003 驱动板", "d": "步进电机的\"翻译官 + 功率放大器\"：GPIO 信号太弱带不动线圈，由它放大后驱动。"}, "buzzer": {"t": "蜂鸣器（Buzzer）", "d": "发声元件，分有源/无源两种（见下）。"}, "buzzer-active": {"t": "有源蜂鸣器（Active Buzzer）", "d": "内置振荡源，通电就响固定音调，当电子开关用，适合报警。"}, "buzzer-passive": {"t": "无源蜂鸣器（Passive Buzzer）", "d": "就是个小喇叭，给什么频率唱什么音，能演奏旋律。"}, "relay": {"t": "继电器（Relay）", "d": "用小电流吸合开关去控制大电流的\"电磁开关\"，可控制 220V 家电（强电，务必注意安全）。"}, "ldr": {"t": "光敏电阻（Photoresistor / LDR）", "d": "光照越强电阻越小的元件，配个电阻就是光强传感器。"}, "thermistor": {"t": "热敏电阻（Thermistor）", "d": "温度改变电阻的元件。"}, "lm35": {"t": "LM35", "d": "模拟温度传感器，输出电压 = 温度 × 10mV/°C，ADC 一读一换算就是温度。"}, "joystick": {"t": "摇杆（Joystick）", "d": "两个电位器（X/Y 轴）加一个按压开关，游戏手柄同款。"}, "keypad": {"t": "矩阵键盘（Matrix Keypad）", "d": "4×4 按键排成行列交叉阵，逐行扫描定位按键，16 个键只占 8 个引脚。"}, "oled": {"t": "OLED", "d": "自发光小屏幕，I2C 接口居多（SSD1306 驱动芯片），显示文字图形。"}, "lcd": {"t": "LCD1602", "d": "能显示两行字符的老牌液晶屏。"}, "tft": {"t": "TFT 彩屏", "d": "彩色液晶屏，SPI 接口（常见 ST7789 驱动），能画图显示图片。"}, "reed-switch": {"t": "干簧管（Reed Switch）", "d": "磁铁靠近触点就导通的开关，门磁报警器的核心。"}, "hall": {"t": "霍尔传感器（Hall Sensor）", "d": "感应磁场的元件，ESP32 芯片里就内置了一个。"}, "pir": {"t": "PIR（Passive Infrared）人体红外", "d": "探测\"移动热源发出的红外线\"（人体、宠物），感应夜灯和安防的核心。"}, "ultrasonic": {"t": "超声波测距（Ultrasonic, HC-SR04）", "d": "发声波、收回波，按时间差算距离，蝙蝠同款原理。"}, "dev-board": {"t": "开发板（Development Board）", "d": "芯片的\"开发脚手架\"：把芯片引脚接成排针、加 USB/按键，方便接线试错；只存在于开发阶段，真实产品里没有它。"}, "module": {"t": "模组（Module）", "d": "芯片 + 天线 + 最小电路封进金属屏蔽罩的小块（如 ESP32-S3-WROOM-1，约 2.5×3.2cm），射频已过认证；大多数 IoT 产品的\"心脏\"，往自己画的 PCB 上一贴就能用。"}, "core-board": {"t": "核心板（Core Board）", "d": "模组 + 电源 + Flash 组成的最小系统小板，插在底板上用；工业设备常见形态，坏了好整块更换。"}, "pcb": {"t": "PCB（Printed Circuit Board）印制电路板", "d": "所有电子件的\"地基板\"，铜线刻在绝缘板上代替杜邦线。自己画图 → 工厂\"打样\"（小批量试产），几百块、两周就能拿到自己的板子。"}, "uart": {"t": "UART（Universal Asynchronous Receiver/Transmitter）", "d": "两根线（TX/RX）点对点串行通信，最早的\"串口\"；电脑看 print 就走它。"}, "baud-rate": {"t": "波特率（Baud Rate）", "d": "每秒传多少位，通信双方必须一致，否则收到乱码。"}, "i2c": {"t": "I2C（Inter-Integrated Circuit）", "d": "两根线（SDA 数据 + SCL 时钟）挂一串器件的总线，靠地址点名说话。"}, "sda-scl": {"t": "SDA / SCL", "d": "I2C 的数据线 / 时钟线。"}, "spi": {"t": "SPI（Serial Peripheral Interface）", "d": "四根线的高速总线，彩屏、SD 卡走的高速路。"}, "mosi-miso": {"t": "MOSI / MISO", "d": "SPI 数据线：主出从入（Master Out Slave In）/ 主入从出（Master In Slave Out）。"}, "chip-select": {"t": "CS（Chip Select）片选", "d": "SPI 的\"点名线\"，拉低哪根就选中哪个器件说话。"}, "bus": {"t": "总线（Bus）", "d": "多个器件共享的一组通信线，配合协议协调\"谁在说话\"。"}, "protocol": {"t": "协议（Protocol）", "d": "通信双方事先约定的规则：什么格式、什么节奏、谁先说。协议不通，硬件再好也白搭。"}, "master-slave": {"t": "主机 / 从机（Master / Slave）", "d": "总线上发起通信的一方 / 被动应答的一方。ESP32 通常当主机。"}, "mqtt": {"t": "MQTT", "d": "物联网标准消息协议，发布/订阅模式，轻量到单片机都能跑。"}, "broker": {"t": "Broker（消息代理）", "d": "MQTT 的中转\"邮局\"：发布者和订阅者都只跟它说话，互相不用认识。"}, "topic": {"t": "Topic（主题）", "d": "消息的分类路径，如 `petri/home/light`，斜线分层像网址。"}, "qos": {"t": "QoS（Quality of Service）服务质量", "d": "MQTT 的送达保证等级：0 尽力送（可能丢）、1 至少一次（可能重）、2 恰好一次。"}, "asyncio": {"t": "asyncio", "d": "Python 的异步并发库：多个任务写成多个函数，谁在等待（sleep/网络）谁就让出 CPU，实现\"同时\"干活。"}, "ble": {"t": "BLE（Bluetooth Low Energy）蓝牙低功耗", "d": "物联网专用的省电蓝牙：平时靠短促\"广播\"喊话，需要传数据时才建立连接。与手机连耳机的经典蓝牙是同一协议族的两个分支。"}, "advertising": {"t": "广播（Advertising）", "d": "BLE 设备每隔一小段时间对外发的\"自我介绍\"小包（设备名、能力，最大 31 字节），不用建立连接，周围的设备都能听到。"}, "rssi": {"t": "RSSI（Received Signal Strength Indication）接收信号强度", "d": "无线信号收到的\"响度\"，负数 dBm：越接近 0 越强（-40 挨得很近，-90 已经很远），粗略反映距离。"}, "gatt": {"t": "GATT（Generic Attribute Profile）通用属性规范", "d": "BLE 建立连接后读写数据的统一框架，按\"服务 → 特征值\"组织；手机 App 控制蓝牙设备基本都走它。"}, "rs485": {"t": "RS485", "d": "工业现场最常见的串行总线：两根线挂几十个设备、抗干扰、能传上千米，Modbus 等工业协议常跑在它上面。"}, "firmware": {"t": "固件（Firmware）", "d": "烧进芯片的\"系统 + 驱动 + 运行环境\"合体；嵌入式世界的\"装系统\"就是刷固件。"}, "rtos": {"t": "RTOS（Real-Time Operating System）实时操作系统", "d": "管理多任务、保证关键代码在确定时间内执行的轻量系统，无界面。"}, "freertos": {"t": "FreeRTOS", "d": "免费开源的 RTOS，ESP32 固件底层跑的就是它；MicroPython 只是它的一个任务。"}, "micropython": {"t": "MicroPython", "d": "能跑在单片机上的精简 Python，让你用 Python 语法控制硬件。"}, "repl": {"t": "REPL（Read-Eval-Print Loop）", "d": "交互式解释器：敲一行执行一行，Thonny 底部那个窗口就是。"}, "flash": {"t": "Flash（闪存）", "d": "板上断电不丢的存储（本板 4MB），你的 .py 文件就住在里面。"}, "cp2102": {"t": "CP2102", "d": "板上的 USB 转串口芯片，电脑和 ESP32 对话的翻译官。"}, "esptool": {"t": "esptool / mpremote", "d": "乐鑫官方命令行工具：esptool 烧固件，mpremote 传文件、跑脚本。"}, "ota": {"t": "OTA（Over-The-Air）远程升级", "d": "不拆机、通过网络给设备更新固件；产品化必备——出了 bug 不能让用户拆壳返厂。"}};
   var pop = null;
   function close() { if (pop) { pop.remove(); pop = null; } }
   function show(el) {

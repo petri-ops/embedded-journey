@@ -2,7 +2,7 @@
 
 > 目标：掌握 [ADC](词汇表.md#adc) 模拟量采集（摇杆/光敏/温度），学会用 [PWM](词汇表.md#pwm) 驱动[舵机](词汇表.md#servo)、[蜂鸣器](词汇表.md#buzzer)、[步进电机](词汇表.md#stepper-motor)，做出"感知→决策→动作"的完整闭环。
 > 实验硬件：双轴摇杆、光敏模块、LM35 温度、MG90S 舵机、无源蜂鸣器、步进电机+ULN2003 驱动板。
-> 接线红线：模拟量只能接 **ADC1 引脚（GPIO32~39）**——ADC2 开 WiFi 后读不了（第 1 课红线表）；GPIO34~39 只能输入，接传感器输出脚没问题。
+> 接线红线（S3）：模拟量只能接 **ADC1 引脚（GPIO1~10）**——ADC2（GPIO11~20）开 WiFi 后读不了；S3 没有"只能输入"的 GPIO；避开 GPIO26~37（Flash/PSRAM）与 GPIO19/20（USB）。本课引脚已按 S3 重映射，旧板的 GPIO32~39 方案不再适用。
 
 ---
 
@@ -24,7 +24,7 @@
 ```python
 from machine import ADC, Pin
 
-adc = ADC(Pin(34))            # 光敏 AO 接 GPIO34
+adc = ADC(Pin(1))             # 光敏 AO 接 GPIO1（ADC1）
 adc.atten(ADC.ATTN_11DB)      # 量程设为约 0~3.3V（11dB 衰减）
 
 raw = adc.read()              # 0 ~ 4095
@@ -40,21 +40,21 @@ print("原始值:", raw, " 电压:", volts, "V")
 
 ### 接线表（共 3V3 和 GND）
 
-| 器件 | 模块引脚 | ESP32 引脚 |
+| 器件 | 模块引脚 | ESP32-S3 引脚 |
 |---|---|---|
-| 光敏（4针） | AO | GPIO34 |
+| 光敏（4针） | AO | GPIO1（ADC1） |
 | 光敏（4针） | DO | 不接（本课用不上） |
-| 摇杆 | VRx | GPIO32 |
-| 摇杆 | VRy | GPIO33 |
-| 摇杆 | SW | GPIO27（数字脚，内部上拉） |
+| 摇杆 | VRx | GPIO2（ADC1） |
+| 摇杆 | VRy | GPIO4（ADC1） |
+| 摇杆 | SW | GPIO5（数字脚，内部上拉） |
 
 ```python
 import machine, time
 
-light = machine.ADC(machine.Pin(34)); light.atten(machine.ADC.ATTN_11DB)
-x = machine.ADC(machine.Pin(32));     x.atten(machine.ADC.ATTN_11DB)
-y = machine.ADC(machine.Pin(33));     y.atten(machine.ADC.ATTN_11DB)
-sw = machine.Pin(27, machine.Pin.IN, machine.Pin.PULL_UP)
+light = machine.ADC(machine.Pin(1)); light.atten(machine.ADC.ATTN_11DB)
+x = machine.ADC(machine.Pin(2));     x.atten(machine.ADC.ATTN_11DB)
+y = machine.ADC(machine.Pin(4));     y.atten(machine.ADC.ATTN_11DB)
+sw = machine.Pin(5, machine.Pin.IN, machine.Pin.PULL_UP)
 
 while True:
     print("光: %4d  X: %4d  Y: %4d  按键: %d"
@@ -72,7 +72,7 @@ while True:
 LM35 输出电压 = 温度 × 10mV/°C（25°C 时输出 0.25V）：
 
 ```python
-t = machine.ADC(machine.Pin(35)); t.atten(machine.ADC.ATTN_11DB)
+t = machine.ADC(machine.Pin(6)); t.atten(machine.ADC.ATTN_11DB)
 
 temp_mv = t.read() / 4095 * 3300      # 换算成毫伏
 print("温度约:", temp_mv / 10, "°C")
@@ -131,14 +131,14 @@ elif light.read() < 1800:    # 相当亮才关
 
 换算成 duty（10 位，1023 ≈ 20ms）：0.5ms ≈ **26**，2.5ms ≈ **128**。
 
-**接线**：舵机棕线→GND，红线→**VIN（5V）**，橙线（信号）→GPIO26。
+**接线**：舵机棕线→GND，红线→**VIN（5V）**，橙线（信号）→GPIO8。
 （信号 3.3V 足够；电源必须 5V——舵机是要干活的，功率走 VIN，GPIO 只出信号。第 1 课红线又回扣了。）
 
 ```python
 from machine import Pin, PWM
 import time
 
-servo = PWM(Pin(26), freq=50)
+servo = PWM(Pin(8), freq=50)
 
 def set_angle(angle):                     # angle: 0~180
     duty = 26 + int(angle / 180 * 102)    # 0°→26, 180°→128
@@ -156,7 +156,7 @@ while True:
 无源蜂鸣器像个小喇叭——你给什么频率它发什么音。**频率=音高，duty=音量开关**：
 
 ```python
-buzzer = PWM(Pin(25), freq=523, duty=0)   # duty=0 静音
+buzzer = PWM(Pin(9), freq=523, duty=0)    # duty=0 静音
 
 def tone(freq, ms):
     buzzer.freq(freq)
@@ -179,13 +179,13 @@ for n, b in zip(melody, beat):
 
 ### 3.3 [步进电机](词汇表.md#stepper-motor)（Stepper Motor）28BYJ-48：不听 PWM，听"节拍"
 
-步进电机靠 4 组线圈按顺序通电，一步一步精确走。[ULN2003 驱动板](词汇表.md#uln2003)接 GPIO16/17/18/19，红线→**VIN(5V)**：
+步进电机靠 4 组线圈按顺序通电，一步一步精确走。[ULN2003 驱动板](词汇表.md#uln2003)接 GPIO10/11/12/13，红线→**VIN(5V)**：
 
 ```python
 from machine import Pin
 import time
 
-IN1, IN2, IN3, IN4 = Pin(16, Pin.OUT), Pin(17, Pin.OUT), Pin(18, Pin.OUT), Pin(19, Pin.OUT)
+IN1, IN2, IN3, IN4 = Pin(10, Pin.OUT), Pin(11, Pin.OUT), Pin(12, Pin.OUT), Pin(13, Pin.OUT)
 COILS = (IN1, IN2, IN3, IN4)
 
 # 半步序列：相邻两相交替通电，转得更顺
@@ -218,11 +218,11 @@ step(-0)           # 反转让序列倒着放即可：for s in reversed(SEQ)
 from machine import Pin, PWM, ADC
 import time
 
-servo  = PWM(Pin(26), freq=50)
-buzzer = PWM(Pin(25), freq=880, duty=0)
-x      = ADC(Pin(32)); x.atten(ADC.ATTN_11DB)
-light  = ADC(Pin(34)); light.atten(ADC.ATTN_11DB)
-sw     = Pin(27, Pin.IN, Pin.PULL_UP)
+servo  = PWM(Pin(8), freq=50)
+buzzer = PWM(Pin(9), freq=880, duty=0)
+x      = ADC(Pin(2)); x.atten(ADC.ATTN_11DB)
+light  = ADC(Pin(1)); light.atten(ADC.ATTN_11DB)
+sw     = Pin(5, Pin.IN, Pin.PULL_UP)
 
 while True:
     angle = (x.read() / 4095) * 180           # 摇杆值 → 0~180°

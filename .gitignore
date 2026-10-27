@@ -3,3 +3,5 @@ __pycache__/
 .DS_Store
 Thumbs.db
 esp32/wifi_config.py
+ESP32-S3开发板N16R8焊接/
+.tmp_*

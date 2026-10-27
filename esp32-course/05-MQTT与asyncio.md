@@ -1,7 +1,7 @@
 # 第 5 课：MQTT 与 asyncio —— 跨上互联网
 
 > 目标：理解 MQTT 发布/订阅模型，让板子与**世界上任何角落**双向通信；掌握 asyncio 并发编程，让"采集、联网、响应"三件事真正同时发生。
-> 实验硬件：光敏/温度传感器 + 板载 LED + 电脑或手机浏览器（收发消息用）。
+> 实验硬件：光敏/温度传感器（ADC1，GPIO1/GPIO6）+ 外接 LED（GPIO4，串 220Ω；心跳灯可用 GPIO5；板载 WS2812 在 GPIO48，需 `neopixel` 驱动）+ 电脑或手机浏览器（收发消息用）。
 
 ---
 
@@ -69,8 +69,8 @@ from umqtt.simple import MQTTClient
 from machine import Pin, ADC
 import time
 
-light = ADC(Pin(34)); light.atten(ADC.ATTN_11DB)
-led = Pin(2, Pin.OUT)
+light = ADC(Pin(1)); light.atten(ADC.ATTN_11DB)
+led = Pin(4, Pin.OUT)
 
 def on_msg(topic, msg):                       # 收到订阅消息的回调
     print("收到:", topic, msg)
@@ -110,8 +110,8 @@ import asyncio
 from umqtt.simple import MQTTClient
 from machine import Pin, ADC
 
-light = ADC(Pin(34)); light.atten(ADC.ATTN_11DB)
-led = Pin(2, Pin.OUT)
+light = ADC(Pin(1)); light.atten(ADC.ATTN_11DB)
+led = Pin(4, Pin.OUT)
 client = None
 
 def on_msg(topic, msg):
@@ -135,20 +135,22 @@ async def report_task():                      # 任务2：每10秒上报
         await asyncio.sleep(10)
 
 async def heartbeat_task():                   # 任务3：心跳闪烁，证明系统活着
+    led2 = Pin(5, Pin.OUT)                    # 第二个 LED（GPIO5，串 220Ω）
     while True:
-        led2 = Pin(2, Pin.OUT)
+        led2.value(not led2.value())
         await asyncio.sleep(0.5)
 
 async def main():
     asyncio.create_task(mqtt_task())          # 三个任务并发启动
     asyncio.create_task(report_task())
+    asyncio.create_task(heartbeat_task())
     while True:
         await asyncio.sleep(1)
 
 asyncio.run(main())
 ```
 
-> 注：心跳任务示例里没动 LED（被 MQTT 占用了）；实战中可接另一个 GPIO 的 LED 或改成打印。要点是看清结构：**async def 定义任务，await 让出 CPU，create_task 并发调度**。
+> 注：心跳任务用第二个 LED（GPIO5，串 220Ω）闪，证明三个任务真的在并发；只有一个 LED 时改成 `print` 也可以。要点是看清结构：**async def 定义任务，await 让出 CPU，create_task 并发调度**。
 > 这正是 FreeRTOS 任务的 Python 露出的衣角——你第一次问题就问过它！固件底层，每个任务就是一个 FreeRTOS task。
 
 ---

@@ -142,6 +142,7 @@
     <a href="04-通信协议-UART-I2C-SPI.html">第 4 课：通信协议 —— UART / I2C / SPI</a>
     <a href="05-MQTT与asyncio.html">第 5 课：MQTT 与 asyncio —— 跨上互联网</a>
     <a href="06-结业项目.html">第 6 课：结业项目 —— 四选一，独立交付</a>
+    <a href="07-产品形态与产品化路线.html">07 · 方向篇：产品形态与产品化路线</a>
     <a href="成长档案.html">成长档案（跨会话长期记忆）</a>
     <a href="词汇表.html">词汇表（Glossary）</a>
     <a href="配件清单.html">套件配件清单（进阶版套餐 · 共 36 项）</a>
@@ -153,8 +154,8 @@
 <blockquote>
 <p>学习方式（2026-10-26 起）：讲义网站自学 → 实操验证 → 交作业由 AI 助手批改 → 归档自动更新网站
 课程管理：本项目由 <code>.agents/skills/esp32-course</code> 技能驱动（说"上课 / 下一课 / 看进度 / 交作业 / 记录踩坑"即可）
-硬件：ESP32 DevKit（ESP32-D0WD-V3, 4MB Flash, CP2102 串口）｜ 配件：进阶版套件 36 项（见 <a href="配件清单.html">配件清单</a>）
-固件：MicroPython v1.29.0 ｜ 串口 COM7 ｜ 局域网 IP 192.168.0.105（DHCP，可能变化）</p>
+硬件：ESP32-S3 开发板（第三方 N16R8 双 Type-C：16MB Flash + 8MB PSRAM，原生 USB + CH343P，端口号不固定）｜ 配件：进阶版套件 36 项（见 <a href="配件清单.html">配件清单</a>）
+固件：MicroPython v1.29.0（S3 Octal-SPIRAM + XMC 启动补丁，见踩坑表 10-27）｜ 串口：COMx（会变，以设备管理器为准）｜ 旧板已判废，详见 <code>hardware.md</code></p>
 <p>📄 <strong>文档格式说明</strong>：每课同时保存 <code>.md</code>（编辑源码）和 <code>.html</code>（分享版）。
 <code>.html</code> 是单文件、无依赖，双击浏览器打开即可，也可直接发给朋友。
 修改 <code>.md</code> 后在本目录运行 <code>python build_html.py</code> 重新生成。</p>
@@ -197,7 +198,7 @@
 <tr>
 <td>5</td>
 <td><a href="05-MQTT与asyncio.html">MQTT 与 asyncio</a></td>
-<td>讲义已上线（待自学）</td>
+<td>🚧 远程实验 v2 已跑通（待自学）</td>
 <td>发布/订阅、公共 broker 安全、并发三任务；项目：跨互联网环境监控</td>
 </tr>
 <tr>
@@ -208,30 +209,61 @@
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>⚠️ <strong>换板适配（10-27 完成）</strong>：第 1-5 课的引脚表/代码、配件清单、<code>seg.py</code> 注释都已按 ESP32-S3 重写（理论内容不变）。接线以 <code>hardware.md</code> 的「S3 课程引脚分配表」为准；GPIO26-37 被 Flash/PSRAM 占用，GPIO22-25 不存在，19/20 是 USB，43/44 是 UART0，Strapping 为 0/3/45/46。
+🧪 <strong>仿真</strong>：Wokwi 支持 ESP32-S3 + MicroPython（详见 <code>wokwi/README.md</code>），可练 GPIO/I2C/SPI/显示/网络逻辑；但电气红线、Flash/PSRAM 占用、ADC 实际电压与 WiFi 射频<strong>不被仿真</strong>，最终仍要回板子验证。</p>
+</blockquote>
 <h2>本目录其他文件（代码实践区）</h2>
 <ul>
-<li><code>../esp32/main.py</code> —— 网页控制 LED 的常驻服务（开机自启）</li>
+<li><code>../esp32/station_main.py</code> —— <strong>门户入口</strong>（上传为板子 <code>main.py</code>）</li>
+<li><code>../esp32/station/</code> —— <strong>门户框架</strong>：<code>core.py</code>、<code>web.py</code>、<code>mqtt_link.py</code>、<code>features/</code>，扩展指南见 <code>README.md</code></li>
+<li><code>../esp32/remote_station.py</code> —— 旧版单文件监测站（回滚备份）</li>
+<li><code>../esp32/main.py</code> —— 旧网页控灯服务（历史项目，不是当前门户入口）</li>
 <li><code>../esp32/wifi_config.py</code> —— WiFi 密码配置（<strong>不入库</strong>；首次使用复制 <code>wifi_config.example.py</code> 并上传到板子）</li>
-<li><code>../esp32/seg.py</code> —— 数码管段码程序（待硬件修复后验证）</li>
+<li><code>../esp32/seg.py</code> —— 数码管段码程序（已按 S3 换脚 a4 b5 c6 d7 e15 f16 g17 dp18；段码仍按共阳，套件共阴需取反）</li>
+<li><code>../esp32/rgb_led.py</code> —— 板载 WS2812 RGB 测试（GPIO48，出厂例程同款）</li>
+<li><code>../wokwi/</code> —— Wokwi 仿真说明 + 第 1 课 LED 样例（无板练习用）</li>
+<li><code>../ESP32-S3开发板N16R8焊接/</code> —— 出厂资料（原理图 <code>ESP32-S3-SCH.pdf</code>、例程、固件、下载工具；大文件已 gitignore）</li>
 <li><code>../esp32/led.py</code> <code>pwm.py</code> <code>wifi.py</code> —— 练手代码备份</li>
+<li><code>07-产品形态与产品化路线.md</code> —— 方向篇（非课程表课程）：开发板→模组→PCB→工业级的形态谱系与成长路线落点</li>
 <li><code>../firmware/ESP32_GENERIC-20260824-v1.29.0.bin</code> —— 固件备份</li>
 <li><code>成长档案.md</code> —— 概念追踪、提问日志、能力雷达、成长路线（skill 每次会话维护）</li>
 <li><code>词汇表.md</code> —— 中英对照领域词汇速查（讲义中的术语可点击跳转）</li>
 </ul>
 <h2>常用命令备忘</h2>
-<pre><code class="language-bash"># 上传文件到板子
-python -m mpremote cp D:/1.WorkDir/PLC/esp32/main.py :main.py
+<pre><code class="language-bash"># 查串口（端口号会变：运行态 PID_4001，下载模式 PID_1001）
+powershell -NoProfile -Command &quot;[System.IO.Ports.SerialPort]::GetPortNames()&quot;
 
-# 重启板子
-python -m mpremote reset
+# 上传文件到板子 / 重启 / 直接运行本地脚本（COMx 换成实际端口）
+python -m mpremote connect COMx cp D:/1.WorkDir/PLC/esp32/station_main.py :main.py
+python -m mpremote connect COMx reset
+python -m mpremote connect COMx run D:/1.WorkDir/PLC/esp32/seg.py
 
-# 直接在板子上运行本地脚本（不保存）
-python -m mpremote run D:/1.WorkDir/PLC/esp32/seg.py
+# 健康检查：能打印出芯片信息就说明固件在跑（没反应先查端口/是否停在下载模式）
+python -m mpremote connect COMx exec &quot;import sys,machine,esp; print(sys.implementation._machine, machine.freq(), esp.flash_size())&quot;
 
-# 烧录固件（恢复出厂 MicroPython）
-python -m esptool --port COM7 erase-flash
-python -m esptool --port COM7 --baud 460800 write-flash 0x1000 D:/1.WorkDir/PLC/firmware/ESP32_GENERIC-20260824-v1.29.0.bin
+# 烧录固件（S3：先按住 BOOT 点 RST 进下载模式，或 REPL 里 import machine; machine.bootloader()）
+python -m esptool --port COMx erase-flash
+python -m esptool --port COMx --baud 460800 write-flash 0x0 D:/1.WorkDir/PLC/firmware/ESP32_GENERIC_S3-SPIRAM_OCT-20260824-v1.29.0-xmc207018.bin
 </code></pre>
+<h2>项目门户 v4（core + features）</h2>
+<ul>
+<li>网页（局域网）：<strong>http://mpy-esp32s3.local/</strong>（固件自带 mDNS）或 http://192.168.0.100/</li>
+<li>定位：<strong>控制 + 呈现 + 交互</strong>，不是开发平台；代码/Git/构建仍在 PC</li>
+<li>架构：<code>station/core.py</code>（WiFi/NTP/状态/命令/日志/看门狗）、<code>web.py</code>（独立线程 + 通用 UI/API）、<code>mqtt_link.py</code>（独立线程 + 聚合状态/命令）、<code>features/</code>（system/led/boot/network/weather/log）</li>
+<li><strong>Feature 契约</strong>：<code>id/title/order/fields/card_fields/actions/list_key/has_loop</code> + <code>init/status/command/loop</code>；新增功能 = 加一个 feature 文件 + 注册，网页卡片/详情/API/MQTT 自动带上（扩展指南 <code>esp32/station/README.md</code>）</li>
+<li>页面：动态卡片、点击详情（网络扫描/天气刷新在打开详情时自动执行）、控制动作（LED 开关/PWM）、日志图表/表格/下载、在线自动重试</li>
+<li>API：<code>/api/features</code>、<code>/api/status</code>、<code>/api/cmd?feature=led&amp;action=pwm&amp;value=512</code>、<code>/api/logs</code>、<code>/download</code></li>
+<li>MQTT：前缀 <code>petri/lab-0172ea</code>；状态 <code>&lt;prefix&gt;/status</code> 聚合 JSON；命令 <code>&lt;prefix&gt;/cmd</code> 格式 <code>feature:action[:value]</code>（<code>led:on</code>、<code>led:pwm:512</code>、<code>network:scan</code>、<code>weather:refresh</code>、<code>log:now</code>），兼容旧 <code>on/off/pwm</code>；ACK <code>&lt;prefix&gt;/ack</code></li>
+<li>公共 broker 偶发 <code>err</code> 只影响 MQTT，网页不受影响；要稳定换私有 broker</li>
+<li>天气：中国天气网镜像（免 key），杭州 <code>101210101</code>；NTP：<code>ntp.aliyun.com</code>（UTC+8）；CSV：<code>/data/log.csv</code></li>
+<li>板载感知：MCU 温度、WiFi RSSI/邻居、BOOT 键；<strong>没有</strong>环境温湿度/光照/PIR/IMU</li>
+<li>BLE：暂未作为 feature 启用（GATT 连接会拖垮 WiFi，后续单独 feature）</li>
+<li>自恢复：<code>main.py</code> 自启；web/MQTT 各自线程；<code>net_task</code> 重连 WiFi；看门狗 120 秒；断电恢复后自动重连，主题和 CSV 不变</li>
+<li>供电：5V 充电器可 24 小时跑；电脑 USB 供电时电脑关机=断电，恢复后自动重启并重连</li>
+<li>地址：mDNS 名字不变（设备支持 <code>.local</code> 即可，无需固定 IP）；PC 若挂代理需把 <code>*.local</code> 加入绕过</li>
+<li>部署：上传 <code>station/</code> + <code>station_main.py</code>（为 <code>main.py</code>）；回滚：上传 <code>remote_station.py</code> 为 <code>main.py</code></li>
+</ul>
 <h2>踩坑记录（持续补充）</h2>
 <table>
 <thead>
@@ -267,6 +299,60 @@ python -m esptool --port COM7 --baud 460800 write-flash 0x1000 D:/1.WorkDir/PLC/
 <td>段脚未限流，3.3V 被拉垮触发 Brownout</td>
 <td>GPIO 驱动 LED 必须串 220Ω+ 电阻</td>
 </tr>
+<tr>
+<td>10-26</td>
+<td>拔掉数码管后板子仍反复 Brownout：轻负载（下载模式/空片）正常，重负载（固件启动+WiFi）必崩</td>
+<td>短路冲击烧伤板载 3.3V 稳压器（LDO），供电能力永久衰退，板子判废</td>
+<td>短路不止"当时重启"，会造成<strong>永久硬件损伤</strong>；硬件诊断三板斧：①裸板测试 ②换线换口排除供电 ③空片启动对比轻重负载定位损伤</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>新板 ESP32-S3 刷官方固件无限重启：<code>bootloader_flash: XMC flash startup fail</code> → <code>failed when running XMC startup flow, reboot!</code></td>
+<td>IDF v5.5.2 只把 XMC 型号字节 0x40/0x41/0x50 当合法芯片；本板 Flash RDID 为 <code>20 70 18</code>（型号 0x70），复查误判失败</td>
+<td>补丁把 bootloader 该失败分支返回值改为 ESP_OK 并重算 checksum/SHA256（脚本 <code>firmware/patch_xmc_207018.py</code>，镜像 <code>...-xmc207018.bin</code>）；启动日志仍会打印该 E 行，属预期。教训：手改二进制务必核对字节序——昨晚把 <code>7C F2</code> 改成 <code>02 0C</code>（应为 <code>0C 02</code>），直接 IllegalInstruction</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>从下载模式回应用后，COM10 报"被其他程序占用"，重启 USB 设备也无效</td>
+<td>Windows 对已绑定 COM 号的 USB CDC 保留了旧句柄</td>
+<td>用 <code>pnputil /disable-device</code> + <code>/enable-device</code> 强制重新枚举（实例 ID 以设备管理器为准），端口会变号；仍不行再物理拔插</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>板子 <code>main.py</code> 自启后 USB 串口消失，设备管理器显示 <code>CM_PROB_DISABLED</code></td>
+<td>之前 <code>pnputil</code> 禁用/启用 USB 时只完成了禁用（shell 权限不足，enable 失败）</td>
+<td>管理员权限执行 <code>pnputil /enable-device &lt;实例ID&gt;</code>；本机 UAC 已关，可用 <code>Start-Process -Verb RunAs</code> 无提示提权。WiFi/MQTT 不受影响</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>网页 <code>fetch('/api/status')</code> 报 <code>ERR_CONNECTION_RESET</code>，curl 也 reset</td>
+<td>HTTP 处理只读了请求行，没读请求头；关闭连接时内核因未读数据发 RST</td>
+<td>响应前把请求头读到空行，再关闭连接</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>CSV 日志每次只剩一行，不累积</td>
+<td><code>ensure_log</code> 用完整路径 <code>/data/log.csv</code> 和 <code>os.listdir</code> 的 <code>log.csv</code> 比较，永不相等，每次用 <code>"w"</code> 重写</td>
+<td>用 <code>os.stat(LOG_PATH)</code> 判断文件是否存在</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>BLE GATT 连接后 WiFi/网页/MQTT 一起掉线</td>
+<td>ESP32-S3 MicroPython NimBLE 与 WiFi 共存 + 高负载；仅广播稳定，连接不稳</td>
+<td>BLE 默认关闭；需要时单独开启，不与 24/7 网页同时用</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>网页刷新偶尔断、等一会又恢复</td>
+<td>网页服务和 MQTT/网络阻塞在同一 asyncio 循环，被拖死</td>
+<td>网页与 MQTT 各自独立线程；前端 3 秒自动重试；Web 服务器不再受 MQTT 抖动影响</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>文档写"MQTT QoS1 + ping 自恢复"，但新旧两版代码（<code>remote_station.py</code> 与 <code>station/mqtt_link.py</code>）的 publish/subscribe 均未传 qos 参数，实际一直跑 QoS0，也没有 PINGREQ 探测</td>
+<td>umqtt.simple 默认 qos=0；v3/v4 演进中丢了设计参数或文档先行</td>
+<td>umqtt.simple 支持 qos=1 发布（阻塞等 PUBACK），给 STATUS/CMD 加上即同时获得送达保证与活性探测；未定案前文档按 QoS0 描述</td>
+</tr>
 </tbody>
 </table>
 <h2>学习日志（每次会话结束追加一行）</h2>
@@ -299,13 +385,88 @@ python -m esptool --port COM7 --baud 460800 write-flash 0x1000 D:/1.WorkDir/PLC/
 <td>备课完成：第 3~6 课讲义撰写上线，学习模式切换为网站自学 + 答疑/批改</td>
 <td>03/04/05/06 讲义 + 网站</td>
 </tr>
+<tr>
+<td>10-27</td>
+<td>换板 ESP32-S3（N16R8）；定位并修复 XMC Flash 启动误判；验收通过：REPL、16MB Flash（文件系统约 14MB）、8MB PSRAM、PWM(GPIO4)、ADC(GPIO1)、WiFi 扫描；硬件红线按 S3 引脚重写</td>
+<td><code>firmware/...-xmc207018.bin</code>、<code>firmware/patch_xmc_207018.py</code>、<code>hardware.md</code> 更新</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>按出厂资料校准板卡（WS2812=GPIO48、BOOT=GPIO0、CH343P）；清理试验固件；实操第一步：板载 RGB 点亮</td>
+<td><code>esp32/rgb_led.py</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>讲义全面适配 ESP32-S3：第 1-5 课引脚/代码、配件兼容矩阵、Wokwi 仿真说明；理论内容不变</td>
+<td>01-05 md/html、配件清单、wokwi/</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>远程 MQTT 监测站上线：内部温度/RSSI/uptime/heap + <code>on/off/pwm</code> 命令，asyncio 三任务；设为 <code>main.py</code> 开机自启；主题 <code>petri/lab-0172ea</code></td>
+<td><code>esp32/remote_station.py</code>、板子 <code>main.py</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>监测站 v1：接入 HTTPS 天气 API（open-meteo），状态含天气，新增 <code>weather</code> 命令；板端请求 200/JSON 验证通过</td>
+<td><code>esp32/remote_station.py</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>监测站 v2：网页仪表盘（http://192.168.0.100/）、BLE 外设 <code>ESP32-Lab</code>、NTP 时间、CSV 记录；修复 HTTP RST 与 CSV 重写两个 bug</td>
+<td><code>esp32/remote_station.py</code>、<code>.tmp_dashboard.png</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>天气源换国内：中国天气网镜像（免 key），城市改杭州 101210101；网页显示 19.4°C / 71% / 良</td>
+<td><code>esp32/remote_station.py</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>监测站 v3：板载感知（MCU 温度/WiFi 邻居/BLE 扫描/BOOT 键）、MQTT QoS1 + ping 自恢复、看门狗 120s、扫描降频；修复 QoS0 假活</td>
+<td><code>esp32/remote_station.py</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>网页加 MQTT 状态/主题卡、BOOT 键演示；MQTT 改独立线程避免拖死网页；确认 BLE GATT 连接会拖垮 WiFi，BLE 默认关闭</td>
+<td><code>esp32/remote_station.py</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>网页刷新断/等会恢复：网页服务与 MQTT/网络阻塞在同一 asyncio 循环；改为网页独立线程 + 前端 3 秒自动重试，65 秒稳定性验证通过</td>
+<td><code>esp32/remote_station.py</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>启用固件自带 mDNS：<strong>http://mpy-esp32s3.local/</strong> 可直接打开网页，无需固定 IP；PC 代理绕过加 <code>*.local</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>网页卡片可点击看详情：天气明细、WiFi 邻居现场扫描 SSID/RSSI（仅本地展示）、BLE 状态；新增 <code>/api/wifi</code>、<code>/api/weather</code>、<code>/api/ble</code></td>
+<td><code>esp32/remote_station.py</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>门户 v4：core+features 框架（<code>station/</code>），六 feature（system/led/boot/network/weather/log），动态卡片/详情/动作，网页/MQTT 线程；已部署验收</td>
+<td><code>esp32/station/</code>、<code>station_main.py</code>、<code>station/README.md</code></td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>门户 UI 去冗余：刷新/扫描不再放卡片，点卡片自动执行并更新详情；LED 控制按钮保留</td>
+<td><code>esp32/station/web.py</code>、features</td>
+</tr>
+<tr>
+<td>10-27</td>
+<td>概念答疑：BLE 扫描、QoS1、产品形态与产品化路线；新增方向篇讲义，词汇表补 11 词条</td>
+<td><code>07-产品形态与产品化路线.md</code>、<code>词汇表.md</code></td>
+</tr>
 </tbody>
 </table>
 <div class="footer">— ESP32 + MicroPython 学习课程 —</div>
 </div></main>
 <script>
 (function () {
-  var G = {"voltage": {"t": "电压（Voltage, U）", "d": "电的\"推力\"，好比水塔的高度，单位伏特（V）。"}, "current": {"t": "电流（Current, I）", "d": "流动的电量，好比水流量，单位安培（A），板上常用毫安（mA）。"}, "resistance": {"t": "电阻（Resistance, R）", "d": "对电流的阻碍，好比水管的粗细，单位欧姆（Ω）。"}, "ohms-law": {"t": "欧姆定律（Ohm's Law）", "d": "三者的关系式 U = I × R，所有电路计算的地基。"}, "led": {"t": "LED（Light-Emitting Diode）发光二极管", "d": "通电就亮的元件，但自己\"不会节制\"，必须串限流电阻。"}, "current-limiting": {"t": "限流电阻（Current-Limiting Resistor）", "d": "串在 LED 回路里\"限量供电\"的电阻，取值算法见第 1 课：R =（电源电压 − Vf）/ 目标电流。"}, "forward-voltage": {"t": "导通压降（Forward Voltage, Vf）", "d": "LED 点亮后\"固定吃掉\"的那部分电压（红光约 2.0V），剩下的电压才轮到电阻去分。"}, "pull-up": {"t": "上拉电阻（Pull-up Resistor）", "d": "给输入引脚一个默认高电平的电阻，防止没人按就乱报信号；下拉（pull-down）同理给低电平。"}, "floating": {"t": "悬空（Floating）", "d": "输入脚什么都不接的状态，像天线一样收集干扰，读数乱跳。"}, "voltage-divider": {"t": "分压器（Voltage Divider）", "d": "两个电阻串联、中间取电压：Vout = Vin × R2/(R1+R2)。电位器、光敏、热敏本质都是它。"}, "potentiometer": {"t": "电位器（Potentiometer）", "d": "旋钮式可调电阻，本质是\"手动调节的分压器\"。"}, "brownout": {"t": "Brownout（欠压复位）", "d": "电压被拉垮时芯片主动重启保命的保护机制；排查思路是找出\"谁在偷吃电流\"。"}, "power": {"t": "功率（Power, P = U×I）", "d": "电阻发热的速率，超了会烧黑冒烟。"}, "gpio": {"t": "GPIO（General Purpose Input/Output）通用输入输出", "d": "芯片上可由程序控制的引脚：能输出高/低电平，也能读取外部电平。"}, "pwm": {"t": "PWM（Pulse Width Modulation）脉宽调制", "d": "用极快的开关方波\"伪造\"中间电压：开的时间占比越大，等效电压越高。LED 调光、舵机、调速全靠它。"}, "duty-cycle": {"t": "占空比（Duty Cycle）", "d": "一个周期里高电平的占比，PWM 的\"油门\"。"}, "pulse-width": {"t": "脉宽（Pulse Width）", "d": "高电平持续的绝对时间。舵机读的是它：0.5ms→0°，2.5ms→180°。"}, "adc": {"t": "ADC（Analog-to-Digital Converter）模数转换器", "d": "把连续电压翻译成数字读数（ESP32 是 12 位：0~4095），\"多少伏\"从此变成\"多少格\"。"}, "hysteresis": {"t": "滞回（Hysteresis）", "d": "开和关用两个不同阈值、中间留缓冲带，专治\"临界值附近疯狂抖动\"。空调温控同款思想。"}, "polling": {"t": "轮询（Polling）", "d": "主循环里反复问\"好了吗？好了吗？\"的编程方式，简单但占 CPU、容易漏。"}, "interrupt": {"t": "中断（Interrupt）", "d": "提前向硬件登记\"信号一变就喊我\"，CPU 平时干别的，事件来了立刻响应。"}, "isr": {"t": "ISR（Interrupt Service Routine）中断服务函数", "d": "中断触发时执行的那个函数；纪律：短、快、不分配内存、不 print。"}, "debounce": {"t": "消抖（Debounce）", "d": "机械触点按下时会弹跳几毫秒，用\"延时确认\"或\"时间节流\"过滤假信号。"}, "active-low": {"t": "低电平有效（Active-Low）", "d": "\"触发 = 变成低电平 0\"的信号约定。上拉+按键接地天然如此，共阳数码管低电平点亮同理。"}, "strapping-pin": {"t": "Strapping Pin 启动配置引脚", "d": "开机瞬间被芯片采样、决定启动方式的引脚（GPIO0/2/12/15），外接电路不能把它们拉错电平。"}, "watchdog": {"t": "看门狗（Watchdog）", "d": "\"你不定期喂我，我就重启系统\"的定时器，专防程序卡死，工业产品必备。"}, "seven-segment": {"t": "数码管（Seven-Segment Display）", "d": "7 段 LED 排成\"8\"字显示数字，段码决定亮哪几笔。"}, "common-cathode": {"t": "共阴 / 共阳（Common Cathode / Anode）", "d": "数码管公共脚接 GND（共阴，高电平点亮）还是 VCC（共阳，低电平点亮）。买错型号段码全反。"}, "servo": {"t": "舵机（Servo / RC Servo）", "d": "自带减速齿轮和角度反馈的小电机：PWM 脉宽决定转到几度，指哪打哪。云台、机械臂、遥控舵面都用它。"}, "stepper-motor": {"t": "步进电机（Stepper Motor）", "d": "靠多组线圈按节拍轮流通电、一步一步精确转动的电机；角度可控、断电能保持位置，代价是慢、费电。"}, "uln2003": {"t": "ULN2003 驱动板", "d": "步进电机的\"翻译官 + 功率放大器\"：GPIO 信号太弱带不动线圈，由它放大后驱动。"}, "buzzer": {"t": "蜂鸣器（Buzzer）", "d": "发声元件，分有源/无源两种（见下）。"}, "buzzer-active": {"t": "有源蜂鸣器（Active Buzzer）", "d": "内置振荡源，通电就响固定音调，当电子开关用，适合报警。"}, "buzzer-passive": {"t": "无源蜂鸣器（Passive Buzzer）", "d": "就是个小喇叭，给什么频率唱什么音，能演奏旋律。"}, "relay": {"t": "继电器（Relay）", "d": "用小电流吸合开关去控制大电流的\"电磁开关\"，可控制 220V 家电（强电，务必注意安全）。"}, "ldr": {"t": "光敏电阻（Photoresistor / LDR）", "d": "光照越强电阻越小的元件，配个电阻就是光强传感器。"}, "thermistor": {"t": "热敏电阻（Thermistor）", "d": "温度改变电阻的元件。"}, "lm35": {"t": "LM35", "d": "模拟温度传感器，输出电压 = 温度 × 10mV/°C，ADC 一读一换算就是温度。"}, "joystick": {"t": "摇杆（Joystick）", "d": "两个电位器（X/Y 轴）加一个按压开关，游戏手柄同款。"}, "keypad": {"t": "矩阵键盘（Matrix Keypad）", "d": "4×4 按键排成行列交叉阵，逐行扫描定位按键，16 个键只占 8 个引脚。"}, "oled": {"t": "OLED", "d": "自发光小屏幕，I2C 接口居多（SSD1306 驱动芯片），显示文字图形。"}, "lcd": {"t": "LCD1602", "d": "能显示两行字符的老牌液晶屏。"}, "tft": {"t": "TFT 彩屏", "d": "彩色液晶屏，SPI 接口（常见 ST7789 驱动），能画图显示图片。"}, "reed-switch": {"t": "干簧管（Reed Switch）", "d": "磁铁靠近触点就导通的开关，门磁报警器的核心。"}, "hall": {"t": "霍尔传感器（Hall Sensor）", "d": "感应磁场的元件，ESP32 芯片里就内置了一个。"}, "pir": {"t": "PIR（Passive Infrared）人体红外", "d": "探测\"移动热源发出的红外线\"（人体、宠物），感应夜灯和安防的核心。"}, "ultrasonic": {"t": "超声波测距（Ultrasonic, HC-SR04）", "d": "发声波、收回波，按时间差算距离，蝙蝠同款原理。"}, "uart": {"t": "UART（Universal Asynchronous Receiver/Transmitter）", "d": "两根线（TX/RX）点对点串行通信，最早的\"串口\"；电脑看 print 就走它。"}, "baud-rate": {"t": "波特率（Baud Rate）", "d": "每秒传多少位，通信双方必须一致，否则收到乱码。"}, "i2c": {"t": "I2C（Inter-Integrated Circuit）", "d": "两根线（SDA 数据 + SCL 时钟）挂一串器件的总线，靠地址点名说话。"}, "sda-scl": {"t": "SDA / SCL", "d": "I2C 的数据线 / 时钟线。"}, "spi": {"t": "SPI（Serial Peripheral Interface）", "d": "四根线的高速总线，彩屏、SD 卡走的高速路。"}, "mosi-miso": {"t": "MOSI / MISO", "d": "SPI 数据线：主出从入（Master Out Slave In）/ 主入从出（Master In Slave Out）。"}, "chip-select": {"t": "CS（Chip Select）片选", "d": "SPI 的\"点名线\"，拉低哪根就选中哪个器件说话。"}, "bus": {"t": "总线（Bus）", "d": "多个器件共享的一组通信线，配合协议协调\"谁在说话\"。"}, "protocol": {"t": "协议（Protocol）", "d": "通信双方事先约定的规则：什么格式、什么节奏、谁先说。协议不通，硬件再好也白搭。"}, "master-slave": {"t": "主机 / 从机（Master / Slave）", "d": "总线上发起通信的一方 / 被动应答的一方。ESP32 通常当主机。"}, "mqtt": {"t": "MQTT", "d": "物联网标准消息协议，发布/订阅模式，轻量到单片机都能跑。"}, "broker": {"t": "Broker（消息代理）", "d": "MQTT 的中转\"邮局\"：发布者和订阅者都只跟它说话，互相不用认识。"}, "topic": {"t": "Topic（主题）", "d": "消息的分类路径，如 `petri/home/light`，斜线分层像网址。"}, "qos": {"t": "QoS（Quality of Service）服务质量", "d": "MQTT 的送达保证等级：0 尽力送（可能丢）、1 至少一次（可能重）、2 恰好一次。"}, "asyncio": {"t": "asyncio", "d": "Python 的异步并发库：多个任务写成多个函数，谁在等待（sleep/网络）谁就让出 CPU，实现\"同时\"干活。"}, "firmware": {"t": "固件（Firmware）", "d": "烧进芯片的\"系统 + 驱动 + 运行环境\"合体；嵌入式世界的\"装系统\"就是刷固件。"}, "rtos": {"t": "RTOS（Real-Time Operating System）实时操作系统", "d": "管理多任务、保证关键代码在确定时间内执行的轻量系统，无界面。"}, "freertos": {"t": "FreeRTOS", "d": "免费开源的 RTOS，ESP32 固件底层跑的就是它；MicroPython 只是它的一个任务。"}, "micropython": {"t": "MicroPython", "d": "能跑在单片机上的精简 Python，让你用 Python 语法控制硬件。"}, "repl": {"t": "REPL（Read-Eval-Print Loop）", "d": "交互式解释器：敲一行执行一行，Thonny 底部那个窗口就是。"}, "flash": {"t": "Flash（闪存）", "d": "板上断电不丢的存储（本板 4MB），你的 .py 文件就住在里面。"}, "cp2102": {"t": "CP2102", "d": "板上的 USB 转串口芯片，电脑和 ESP32 对话的翻译官。"}, "esptool": {"t": "esptool / mpremote", "d": "乐鑫官方命令行工具：esptool 烧固件，mpremote 传文件、跑脚本。"}};
+  var G = {"voltage": {"t": "电压（Voltage, U）", "d": "电的\"推力\"，好比水塔的高度，单位伏特（V）。"}, "current": {"t": "电流（Current, I）", "d": "流动的电量，好比水流量，单位安培（A），板上常用毫安（mA）。"}, "resistance": {"t": "电阻（Resistance, R）", "d": "对电流的阻碍，好比水管的粗细，单位欧姆（Ω）。"}, "ohms-law": {"t": "欧姆定律（Ohm's Law）", "d": "三者的关系式 U = I × R，所有电路计算的地基。"}, "led": {"t": "LED（Light-Emitting Diode）发光二极管", "d": "通电就亮的元件，但自己\"不会节制\"，必须串限流电阻。"}, "current-limiting": {"t": "限流电阻（Current-Limiting Resistor）", "d": "串在 LED 回路里\"限量供电\"的电阻，取值算法见第 1 课：R =（电源电压 − Vf）/ 目标电流。"}, "forward-voltage": {"t": "导通压降（Forward Voltage, Vf）", "d": "LED 点亮后\"固定吃掉\"的那部分电压（红光约 2.0V），剩下的电压才轮到电阻去分。"}, "pull-up": {"t": "上拉电阻（Pull-up Resistor）", "d": "给输入引脚一个默认高电平的电阻，防止没人按就乱报信号；下拉（pull-down）同理给低电平。"}, "floating": {"t": "悬空（Floating）", "d": "输入脚什么都不接的状态，像天线一样收集干扰，读数乱跳。"}, "voltage-divider": {"t": "分压器（Voltage Divider）", "d": "两个电阻串联、中间取电压：Vout = Vin × R2/(R1+R2)。电位器、光敏、热敏本质都是它。"}, "potentiometer": {"t": "电位器（Potentiometer）", "d": "旋钮式可调电阻，本质是\"手动调节的分压器\"。"}, "brownout": {"t": "Brownout（欠压复位）", "d": "电压被拉垮时芯片主动重启保命的保护机制；排查思路是找出\"谁在偷吃电流\"。"}, "power": {"t": "功率（Power, P = U×I）", "d": "电阻发热的速率，超了会烧黑冒烟。"}, "emc": {"t": "EMC（Electromagnetic Compatibility）电磁兼容", "d": "设备既不干扰别人、也不被别人干扰的能力；工业产品必须过认证测试，是\"能自己用\"和\"能卖出去\"的分水岭之一。"}, "gpio": {"t": "GPIO（General Purpose Input/Output）通用输入输出", "d": "芯片上可由程序控制的引脚：能输出高/低电平，也能读取外部电平。"}, "pwm": {"t": "PWM（Pulse Width Modulation）脉宽调制", "d": "用极快的开关方波\"伪造\"中间电压：开的时间占比越大，等效电压越高。LED 调光、舵机、调速全靠它。"}, "duty-cycle": {"t": "占空比（Duty Cycle）", "d": "一个周期里高电平的占比，PWM 的\"油门\"。"}, "pulse-width": {"t": "脉宽（Pulse Width）", "d": "高电平持续的绝对时间。舵机读的是它：0.5ms→0°，2.5ms→180°。"}, "adc": {"t": "ADC（Analog-to-Digital Converter）模数转换器", "d": "把连续电压翻译成数字读数（ESP32 是 12 位：0~4095），\"多少伏\"从此变成\"多少格\"。"}, "hysteresis": {"t": "滞回（Hysteresis）", "d": "开和关用两个不同阈值、中间留缓冲带，专治\"临界值附近疯狂抖动\"。空调温控同款思想。"}, "polling": {"t": "轮询（Polling）", "d": "主循环里反复问\"好了吗？好了吗？\"的编程方式，简单但占 CPU、容易漏。"}, "interrupt": {"t": "中断（Interrupt）", "d": "提前向硬件登记\"信号一变就喊我\"，CPU 平时干别的，事件来了立刻响应。"}, "isr": {"t": "ISR（Interrupt Service Routine）中断服务函数", "d": "中断触发时执行的那个函数；纪律：短、快、不分配内存、不 print。"}, "debounce": {"t": "消抖（Debounce）", "d": "机械触点按下时会弹跳几毫秒，用\"延时确认\"或\"时间节流\"过滤假信号。"}, "active-low": {"t": "低电平有效（Active-Low）", "d": "\"触发 = 变成低电平 0\"的信号约定。上拉+按键接地天然如此，共阳数码管低电平点亮同理。"}, "strapping-pin": {"t": "Strapping Pin 启动配置引脚", "d": "开机瞬间被芯片采样、决定启动方式的引脚（GPIO0/2/12/15），外接电路不能把它们拉错电平。"}, "watchdog": {"t": "看门狗（Watchdog）", "d": "\"你不定期喂我，我就重启系统\"的定时器，专防程序卡死，工业产品必备。"}, "seven-segment": {"t": "数码管（Seven-Segment Display）", "d": "7 段 LED 排成\"8\"字显示数字，段码决定亮哪几笔。"}, "common-cathode": {"t": "共阴 / 共阳（Common Cathode / Anode）", "d": "数码管公共脚接 GND（共阴，高电平点亮）还是 VCC（共阳，低电平点亮）。买错型号段码全反。"}, "servo": {"t": "舵机（Servo / RC Servo）", "d": "自带减速齿轮和角度反馈的小电机：PWM 脉宽决定转到几度，指哪打哪。云台、机械臂、遥控舵面都用它。"}, "stepper-motor": {"t": "步进电机（Stepper Motor）", "d": "靠多组线圈按节拍轮流通电、一步一步精确转动的电机；角度可控、断电能保持位置，代价是慢、费电。"}, "uln2003": {"t": "ULN2003 驱动板", "d": "步进电机的\"翻译官 + 功率放大器\"：GPIO 信号太弱带不动线圈，由它放大后驱动。"}, "buzzer": {"t": "蜂鸣器（Buzzer）", "d": "发声元件，分有源/无源两种（见下）。"}, "buzzer-active": {"t": "有源蜂鸣器（Active Buzzer）", "d": "内置振荡源，通电就响固定音调，当电子开关用，适合报警。"}, "buzzer-passive": {"t": "无源蜂鸣器（Passive Buzzer）", "d": "就是个小喇叭，给什么频率唱什么音，能演奏旋律。"}, "relay": {"t": "继电器（Relay）", "d": "用小电流吸合开关去控制大电流的\"电磁开关\"，可控制 220V 家电（强电，务必注意安全）。"}, "ldr": {"t": "光敏电阻（Photoresistor / LDR）", "d": "光照越强电阻越小的元件，配个电阻就是光强传感器。"}, "thermistor": {"t": "热敏电阻（Thermistor）", "d": "温度改变电阻的元件。"}, "lm35": {"t": "LM35", "d": "模拟温度传感器，输出电压 = 温度 × 10mV/°C，ADC 一读一换算就是温度。"}, "joystick": {"t": "摇杆（Joystick）", "d": "两个电位器（X/Y 轴）加一个按压开关，游戏手柄同款。"}, "keypad": {"t": "矩阵键盘（Matrix Keypad）", "d": "4×4 按键排成行列交叉阵，逐行扫描定位按键，16 个键只占 8 个引脚。"}, "oled": {"t": "OLED", "d": "自发光小屏幕，I2C 接口居多（SSD1306 驱动芯片），显示文字图形。"}, "lcd": {"t": "LCD1602", "d": "能显示两行字符的老牌液晶屏。"}, "tft": {"t": "TFT 彩屏", "d": "彩色液晶屏，SPI 接口（常见 ST7789 驱动），能画图显示图片。"}, "reed-switch": {"t": "干簧管（Reed Switch）", "d": "磁铁靠近触点就导通的开关，门磁报警器的核心。"}, "hall": {"t": "霍尔传感器（Hall Sensor）", "d": "感应磁场的元件，ESP32 芯片里就内置了一个。"}, "pir": {"t": "PIR（Passive Infrared）人体红外", "d": "探测\"移动热源发出的红外线\"（人体、宠物），感应夜灯和安防的核心。"}, "ultrasonic": {"t": "超声波测距（Ultrasonic, HC-SR04）", "d": "发声波、收回波，按时间差算距离，蝙蝠同款原理。"}, "dev-board": {"t": "开发板（Development Board）", "d": "芯片的\"开发脚手架\"：把芯片引脚接成排针、加 USB/按键，方便接线试错；只存在于开发阶段，真实产品里没有它。"}, "module": {"t": "模组（Module）", "d": "芯片 + 天线 + 最小电路封进金属屏蔽罩的小块（如 ESP32-S3-WROOM-1，约 2.5×3.2cm），射频已过认证；大多数 IoT 产品的\"心脏\"，往自己画的 PCB 上一贴就能用。"}, "core-board": {"t": "核心板（Core Board）", "d": "模组 + 电源 + Flash 组成的最小系统小板，插在底板上用；工业设备常见形态，坏了好整块更换。"}, "pcb": {"t": "PCB（Printed Circuit Board）印制电路板", "d": "所有电子件的\"地基板\"，铜线刻在绝缘板上代替杜邦线。自己画图 → 工厂\"打样\"（小批量试产），几百块、两周就能拿到自己的板子。"}, "uart": {"t": "UART（Universal Asynchronous Receiver/Transmitter）", "d": "两根线（TX/RX）点对点串行通信，最早的\"串口\"；电脑看 print 就走它。"}, "baud-rate": {"t": "波特率（Baud Rate）", "d": "每秒传多少位，通信双方必须一致，否则收到乱码。"}, "i2c": {"t": "I2C（Inter-Integrated Circuit）", "d": "两根线（SDA 数据 + SCL 时钟）挂一串器件的总线，靠地址点名说话。"}, "sda-scl": {"t": "SDA / SCL", "d": "I2C 的数据线 / 时钟线。"}, "spi": {"t": "SPI（Serial Peripheral Interface）", "d": "四根线的高速总线，彩屏、SD 卡走的高速路。"}, "mosi-miso": {"t": "MOSI / MISO", "d": "SPI 数据线：主出从入（Master Out Slave In）/ 主入从出（Master In Slave Out）。"}, "chip-select": {"t": "CS（Chip Select）片选", "d": "SPI 的\"点名线\"，拉低哪根就选中哪个器件说话。"}, "bus": {"t": "总线（Bus）", "d": "多个器件共享的一组通信线，配合协议协调\"谁在说话\"。"}, "protocol": {"t": "协议（Protocol）", "d": "通信双方事先约定的规则：什么格式、什么节奏、谁先说。协议不通，硬件再好也白搭。"}, "master-slave": {"t": "主机 / 从机（Master / Slave）", "d": "总线上发起通信的一方 / 被动应答的一方。ESP32 通常当主机。"}, "mqtt": {"t": "MQTT", "d": "物联网标准消息协议，发布/订阅模式，轻量到单片机都能跑。"}, "broker": {"t": "Broker（消息代理）", "d": "MQTT 的中转\"邮局\"：发布者和订阅者都只跟它说话，互相不用认识。"}, "topic": {"t": "Topic（主题）", "d": "消息的分类路径，如 `petri/home/light`，斜线分层像网址。"}, "qos": {"t": "QoS（Quality of Service）服务质量", "d": "MQTT 的送达保证等级：0 尽力送（可能丢）、1 至少一次（可能重）、2 恰好一次。"}, "asyncio": {"t": "asyncio", "d": "Python 的异步并发库：多个任务写成多个函数，谁在等待（sleep/网络）谁就让出 CPU，实现\"同时\"干活。"}, "ble": {"t": "BLE（Bluetooth Low Energy）蓝牙低功耗", "d": "物联网专用的省电蓝牙：平时靠短促\"广播\"喊话，需要传数据时才建立连接。与手机连耳机的经典蓝牙是同一协议族的两个分支。"}, "advertising": {"t": "广播（Advertising）", "d": "BLE 设备每隔一小段时间对外发的\"自我介绍\"小包（设备名、能力，最大 31 字节），不用建立连接，周围的设备都能听到。"}, "rssi": {"t": "RSSI（Received Signal Strength Indication）接收信号强度", "d": "无线信号收到的\"响度\"，负数 dBm：越接近 0 越强（-40 挨得很近，-90 已经很远），粗略反映距离。"}, "gatt": {"t": "GATT（Generic Attribute Profile）通用属性规范", "d": "BLE 建立连接后读写数据的统一框架，按\"服务 → 特征值\"组织；手机 App 控制蓝牙设备基本都走它。"}, "rs485": {"t": "RS485", "d": "工业现场最常见的串行总线：两根线挂几十个设备、抗干扰、能传上千米，Modbus 等工业协议常跑在它上面。"}, "firmware": {"t": "固件（Firmware）", "d": "烧进芯片的\"系统 + 驱动 + 运行环境\"合体；嵌入式世界的\"装系统\"就是刷固件。"}, "rtos": {"t": "RTOS（Real-Time Operating System）实时操作系统", "d": "管理多任务、保证关键代码在确定时间内执行的轻量系统，无界面。"}, "freertos": {"t": "FreeRTOS", "d": "免费开源的 RTOS，ESP32 固件底层跑的就是它；MicroPython 只是它的一个任务。"}, "micropython": {"t": "MicroPython", "d": "能跑在单片机上的精简 Python，让你用 Python 语法控制硬件。"}, "repl": {"t": "REPL（Read-Eval-Print Loop）", "d": "交互式解释器：敲一行执行一行，Thonny 底部那个窗口就是。"}, "flash": {"t": "Flash（闪存）", "d": "板上断电不丢的存储（本板 4MB），你的 .py 文件就住在里面。"}, "cp2102": {"t": "CP2102", "d": "板上的 USB 转串口芯片，电脑和 ESP32 对话的翻译官。"}, "esptool": {"t": "esptool / mpremote", "d": "乐鑫官方命令行工具：esptool 烧固件，mpremote 传文件、跑脚本。"}, "ota": {"t": "OTA（Over-The-Air）远程升级", "d": "不拆机、通过网络给设备更新固件；产品化必备——出了 bug 不能让用户拆壳返厂。"}};
   var pop = null;
   function close() { if (pop) { pop.remove(); pop = null; } }
   function show(el) {
